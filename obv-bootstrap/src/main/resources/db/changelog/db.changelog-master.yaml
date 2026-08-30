@@ -87,3 +87,12 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/0028-envers-p4.yaml
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0029-bon-transfert.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0030-ligne-transfert.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0031-envers-p5.yaml
+      relativeToChangelogFile: false

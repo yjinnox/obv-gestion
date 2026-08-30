@@ -2,6 +2,7 @@ package com.obvgestion.application.stock;
 
 import com.obvgestion.domain.referentiel.PointDeVente;
 import com.obvgestion.domain.referentiel.Produit;
+import com.obvgestion.domain.stock.MouvementDemande;
 import com.obvgestion.domain.stock.MouvementStock;
 import com.obvgestion.domain.stock.Stock;
 import com.obvgestion.domain.stock.TypeMouvementStock;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
+import java.util.List;
 
 /** §6.2 — mouvements de stock (RG-14/RG-15/RG-16). */
 @Service
@@ -72,6 +74,30 @@ public class StockService {
         mouvementStockRepository.enregistrer(new MouvementStock(pointDeVente, produit, type, quantiteSignee,
                 stockAvant, stockApres, documentType, documentId, Instant.now(), utilisateur));
         return stockEnregistre;
+    }
+
+    /**
+     * RG-31 — applique plusieurs mouvements liés (typiquement une paire
+     * {@code SORTIE_TRANSFERT}/{@code ENTREE_TRANSFERT}) dans une même
+     * transaction dédiée : soit tous appliqués, soit aucun. RG-16 — la
+     * paire entière est rejouée en cas de conflit de verrou optimiste sur
+     * l'un quelconque des soldes concernés.
+     */
+    public List<Stock> appliquerPlusieurs(List<MouvementDemande> mouvements, String documentType, Long documentId,
+                                           Utilisateur utilisateur) {
+        for (int tentative = 1; tentative <= TENTATIVES_MAX; tentative++) {
+            try {
+                return transactionNouvelle.execute(status -> mouvements.stream()
+                        .map(m -> appliquerDansTransaction(m.pointDeVente(), m.produit(), m.type(),
+                                m.quantiteSignee(), documentType, documentId, utilisateur))
+                        .toList());
+            } catch (OptimisticLockingFailureException e) {
+                if (tentative == TENTATIVES_MAX) {
+                    throw e;
+                }
+            }
+        }
+        throw new IllegalStateException("Nombre de tentatives de verrou optimiste dépassé sans résultat.");
     }
 
     @Transactional(readOnly = true)

@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0030-ligne-transfert
+      author: obv-gestion
+      comment: "§9 — lignes d'un transfert (produit, conditionnement, quantités demi-casiers/bouteilles RG-30, prix figé)."
+      changes:
+        - createTable:
+            tableName: ligne_transfert
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: transfert_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_ligne_transfert_transfert, references: "bon_transfert(id)"}}
+              - column: {name: produit_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_ligne_transfert_produit, references: "produit(id)"}}
+              - column: {name: conditionnement_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_ligne_transfert_conditionnement, references: "conditionnement(id)"}}
+              - column: {name: quantite_demi_casiers, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: quantite_bouteilles, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: prix_cession_casier_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - createIndex:
+            tableName: ligne_transfert
+            indexName: ix_ligne_transfert_transfert
+            columns:
+              - column: {name: transfert_id}
