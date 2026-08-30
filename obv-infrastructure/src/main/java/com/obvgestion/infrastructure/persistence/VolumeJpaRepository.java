@@ -1,14 +1,14 @@
 package com.obvgestion.infrastructure.persistence;
 
-import com.obvgestion.domain.referentiel.PointDeVente;
+import com.obvgestion.domain.referentiel.Volume;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface PointDeVenteJpaRepository extends JpaRepository<PointDeVente, Long> {
+public interface VolumeJpaRepository extends JpaRepository<Volume, Long> {
 
-    @Query("SELECT p FROM PointDeVente p WHERE (:actif IS NULL OR p.actif = :actif)")
-    Page<PointDeVente> rechercher(@Param("actif") Boolean actif, Pageable pageable);
+    @Query("SELECT v FROM Volume v WHERE (:actif IS NULL OR v.actif = :actif)")
+    Page<Volume> rechercher(@Param("actif") Boolean actif, Pageable pageable);
 }

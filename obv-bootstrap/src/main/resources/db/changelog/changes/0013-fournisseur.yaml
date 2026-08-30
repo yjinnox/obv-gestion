@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013-fournisseur
+      author: obv-gestion
+      comment: "§5.1 — fournisseurs du dépôt."
+      changes:
+        - createTable:
+            tableName: fournisseur
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: raison_sociale, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: telephone, type: VARCHAR(20)}
+              - column: {name: email, type: VARCHAR(255)}
+              - column: {name: adresse, type: VARCHAR(255)}
+              - column: {name: actif, type: BOOLEAN, defaultValueBoolean: true, constraints: {nullable: false}}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}

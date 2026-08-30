@@ -28,4 +28,18 @@
     </Or>
     <Bug pattern="EI_EXPOSE_REP2"/>
   </Match>
+
+  <!--
+    CT_CONSTRUCTOR_THROW : quelques entités (Volume, Conditionnement)
+    valident leurs invariants (contenance/capacité strictement positives)
+    dans leur constructeur et échouent vite via IllegalArgumentException.
+    Le vecteur théorique (une sous-classe hostile redéfinissant finalize()
+    observerait l'état partiellement construit) ne s'applique pas ici :
+    aucune classe du dépôt ne redéfinit finalize(), et ces entités JPA ne
+    sont jamais sous-classées que par le proxy généré par Hibernate lui-même.
+  -->
+  <Match>
+    <Package name="~com\.obvgestion\.domain(\..*)?"/>
+    <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+  </Match>
 </FindBugsFilter>
