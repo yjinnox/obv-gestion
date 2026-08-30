@@ -3,9 +3,7 @@ package com.obvgestion.application.utilisateur;
 import com.obvgestion.application.notification.Notification;
 import com.obvgestion.application.notification.NotificationService;
 import com.obvgestion.domain.commun.JetonOpaque;
-import com.obvgestion.domain.notification.CanalNotification;
 import com.obvgestion.domain.utilisateur.ActivationInvalideException;
-import com.obvgestion.domain.utilisateur.CanalContact;
 import com.obvgestion.domain.utilisateur.CodeOtp;
 import com.obvgestion.domain.utilisateur.JetonActivation;
 import com.obvgestion.domain.utilisateur.MotDePasseClair;
@@ -56,7 +54,7 @@ public class ActivationService {
 
         String lienActivation = urlFrontend + "/activation?token=" + jeton.valeurClaire();
         notificationService.envoyer(new Notification(
-                canalDe(utilisateur), destinataireDe(utilisateur), "invitation-activation",
+                utilisateur.canalNotification(), utilisateur.contactNotification(), "invitation-activation",
                 Map.of("nom", utilisateur.getNom(), "prenoms", utilisateur.getPrenoms(),
                         "lienActivation", lienActivation)));
     }
@@ -107,7 +105,7 @@ public class ActivationService {
         CodeOtp otp = CodeOtp.genererAleatoire();
         gestionnaireOtp.genererEtStocker(utilisateur.getId(), otp);
         notificationService.envoyer(new Notification(
-                canalDe(utilisateur), destinataireDe(utilisateur), "otp",
+                utilisateur.canalNotification(), utilisateur.contactNotification(), "otp",
                 Map.of("nom", utilisateur.getNom(), "code", otp.valeur())));
     }
 
@@ -119,14 +117,5 @@ public class ActivationService {
             throw new ActivationInvalideException();
         }
         return jeton;
-    }
-
-    private static CanalNotification canalDe(Utilisateur utilisateur) {
-        return utilisateur.getCanalContact() == CanalContact.EMAIL ? CanalNotification.EMAIL : CanalNotification.SMS;
-    }
-
-    private static String destinataireDe(Utilisateur utilisateur) {
-        return utilisateur.getCanalContact() == CanalContact.EMAIL
-                ? utilisateur.getEmail() : utilisateur.getTelephone();
     }
 }

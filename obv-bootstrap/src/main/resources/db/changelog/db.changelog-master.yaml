@@ -51,3 +51,21 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/0016-tarif.yaml
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0017-stock.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0018-mouvement-stock.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0019-reception.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0020-ligne-reception.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0021-jeton-validation-reception.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0022-envers-p3.yaml
+      relativeToChangelogFile: false

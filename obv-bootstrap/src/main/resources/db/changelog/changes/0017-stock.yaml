@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017-stock
+      author: obv-gestion
+      comment: "§6.2 — solde de stock par (point de vente, produit) ; RG-11/RG-12/RG-16."
+      changes:
+        - createTable:
+            tableName: stock
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: point_de_vente_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_stock_point_de_vente, references: "point_de_vente(id)"}}
+              - column: {name: produit_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_stock_produit, references: "produit(id)"}}
+              - column: {name: quantite, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: version, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - addUniqueConstraint:
+            tableName: stock
+            columnNames: point_de_vente_id, produit_id
+            constraintName: uk_stock_point_de_vente_produit

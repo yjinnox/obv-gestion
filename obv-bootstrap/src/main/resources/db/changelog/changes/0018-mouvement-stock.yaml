@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0018-mouvement-stock
+      author: obv-gestion
+      comment: "§6.2 — journal append-only des mouvements de stock ; RG-14."
+      changes:
+        - createTable:
+            tableName: mouvement_stock
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: point_de_vente_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_mouvement_stock_point_de_vente, references: "point_de_vente(id)"}}
+              - column: {name: produit_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_mouvement_stock_produit, references: "produit(id)"}}
+              - column: {name: type, type: VARCHAR(20), constraints: {nullable: false}}
+              - column: {name: quantite_signee, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: stock_avant, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: stock_apres, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: document_type, type: VARCHAR(30), constraints: {nullable: false}}
+              - column: {name: document_id, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: date_heure, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: utilisateur_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_mouvement_stock_utilisateur, references: "utilisateur(id)"}}
+        - createIndex:
+            tableName: mouvement_stock
+            indexName: ix_mouvement_stock_recherche
+            columns:
+              - column: {name: point_de_vente_id}
+              - column: {name: produit_id}
+              - column: {name: date_heure}
+        - createIndex:
+            tableName: mouvement_stock
+            indexName: ix_mouvement_stock_document
+            columns:
+              - column: {name: document_type}
+              - column: {name: document_id}

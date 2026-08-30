@@ -1,6 +1,7 @@
 package com.obvgestion.domain.utilisateur;
 
 import com.obvgestion.domain.audit.Auditable;
+import com.obvgestion.domain.notification.CanalNotification;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -207,6 +208,16 @@ public class Utilisateur extends Auditable {
 
     public String getTelephone() {
         return telephone;
+    }
+
+    /** §11 — canal de notification associé au canal de contact préféré de l'utilisateur. */
+    public CanalNotification canalNotification() {
+        return canalContact == CanalContact.EMAIL ? CanalNotification.EMAIL : CanalNotification.SMS;
+    }
+
+    /** §11 — adresse ou numéro à notifier, cohérent avec {@link #canalNotification()}. */
+    public String contactNotification() {
+        return canalContact == CanalContact.EMAIL ? email : telephone;
     }
 
     public StatutUtilisateur getStatut() {

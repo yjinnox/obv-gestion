@@ -1,0 +1,1 @@
+OBV Gestion : bonjour [(${prenoms})], une réception de [(${fournisseur})] ([(${montantTotalXof})] XOF) attend votre validation : [(${lienRecapitulatif})]

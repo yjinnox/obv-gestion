@@ -1,6 +1,9 @@
 package com.obvgestion.api.erreur;
 
 import com.obvgestion.domain.commun.RegleGestionException;
+import com.obvgestion.domain.commun.SeparationDesTachesException;
+import com.obvgestion.domain.reception.ReceptionInvalideException;
+import com.obvgestion.domain.stock.StockInsuffisantException;
 import com.obvgestion.domain.utilisateur.AutoModificationInterditeException;
 import com.obvgestion.domain.utilisateur.CompteVerrouilleException;
 import com.obvgestion.domain.utilisateur.DernierSuperAdministrateurException;
@@ -37,6 +40,9 @@ class GlobalExceptionHandler {
             case AutoModificationInterditeException ignored -> HttpStatus.FORBIDDEN;
             case EtatUtilisateurInvalideException ignored -> HttpStatus.CONFLICT;
             case DernierSuperAdministrateurException ignored -> HttpStatus.CONFLICT;
+            case ReceptionInvalideException ignored -> HttpStatus.CONFLICT;
+            case StockInsuffisantException ignored -> HttpStatus.CONFLICT;
+            case SeparationDesTachesException ignored -> HttpStatus.FORBIDDEN;
             default -> HttpStatus.BAD_REQUEST;
         };
         return probleme(statut, ex.getMessage(), ex.code());

@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019-reception
+      author: obv-gestion
+      comment: "§7 — réception de marchandise au dépôt (RG-17 à RG-22)."
+      changes:
+        - createTable:
+            tableName: reception
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: fournisseur_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_reception_fournisseur, references: "fournisseur(id)"}}
+              - column: {name: point_de_vente_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_reception_point_de_vente, references: "point_de_vente(id)"}}
+              - column: {name: date_heure_livraison, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: statut, type: VARCHAR(25), constraints: {nullable: false}}
+              - column: {name: motif_annulation, type: VARCHAR(500)}
+              - column: {name: cloturee_par, type: VARCHAR(255)}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - createIndex:
+            tableName: reception
+            indexName: ix_reception_recherche
+            columns:
+              - column: {name: point_de_vente_id}
+              - column: {name: statut}
