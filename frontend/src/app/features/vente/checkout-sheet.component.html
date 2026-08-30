@@ -1,0 +1,89 @@
+@if (venteCreee(); as vente) {
+  <div class="confirmation">
+    <mat-icon class="confirmation__icone">check_circle</mat-icon>
+    <h2>Commande {{ vente.numeroBonCommande }} enregistrée</h2>
+    <p>Total : {{ vente.montantTotalXof | xof }}</p>
+    <div class="confirmation__actions">
+      <button mat-stroked-button (click)="telechargerBonDeCommande()">
+        <mat-icon>description</mat-icon>
+        Bon de commande
+      </button>
+      <button mat-stroked-button (click)="telechargerFacture()">
+        <mat-icon>receipt_long</mat-icon>
+        Facture
+      </button>
+    </div>
+    <button mat-flat-button color="primary" (click)="fermer()">Nouvelle vente</button>
+  </div>
+} @else {
+  <h2 class="titre">Panier</h2>
+  <div class="lignes">
+    @for (ligne of panier.lignes; track ligne.id) {
+      <div class="ligne">
+        <span>{{ ligne.marqueLibelle }} {{ ligne.volumeLibelle }} × {{ ligne.quantiteDemiCasiers }}</span>
+        <span>{{ ligne.montantLigneXof | xof }}</span>
+      </div>
+    }
+  </div>
+  <p class="total">Total : {{ panier.montantGlobalXof | xof }}</p>
+
+  <h3 class="sous-titre">Client</h3>
+  <mat-form-field appearance="outline" class="champ-pleine-largeur">
+    <mat-label>Client</mat-label>
+    <mat-select [value]="modeClient()" (selectionChange)="modeClient.set($event.value)">
+      <mat-option value="existant">Client existant</mat-option>
+      <mat-option value="nouveau">Nouveau client</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  @if (modeClient() === 'existant') {
+    <mat-form-field appearance="outline" class="champ-pleine-largeur">
+      <mat-label>Sélectionner le client</mat-label>
+      <mat-select [value]="clientSelectionne()" (selectionChange)="clientSelectionne.set($event.value)">
+        @for (c of clients.value()?.content ?? []; track c.id) {
+          <mat-option [value]="c.id">
+            {{ c.type === 'ENTREPRISE' ? c.raisonSociale : c.nom + ' ' + c.prenoms }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  @if (modeClient() === 'nouveau') {
+    <div class="nouveau-client">
+      <mat-form-field appearance="outline">
+        <mat-label>Nom</mat-label>
+        <input matInput [value]="nouveauNom()" (input)="nouveauNom.set($any($event.target).value)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Prénoms</mat-label>
+        <input matInput [value]="nouveauPrenoms()" (input)="nouveauPrenoms.set($any($event.target).value)" />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Téléphone</mat-label>
+        <input matInput [value]="nouveauTelephone()" (input)="nouveauTelephone.set($any($event.target).value)" />
+      </mat-form-field>
+    </div>
+  }
+
+  <h3 class="sous-titre">Mode de paiement</h3>
+  <mat-form-field appearance="outline" class="champ-pleine-largeur">
+    <mat-label>Mode de paiement</mat-label>
+    <mat-select [value]="modePaiement()" (selectionChange)="modePaiement.set($event.value)">
+      <mat-option value="ESPECES">Espèces</mat-option>
+      <mat-option value="MOBILE_MONEY">Mobile money</mat-option>
+      <mat-option value="CARTE_BANCAIRE">Carte bancaire</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="actions">
+    <button mat-button (click)="fermer()">Fermer</button>
+    <button mat-flat-button color="primary" [disabled]="enCours()" (click)="commander()">
+      @if (enCours()) {
+        <mat-spinner diameter="20" />
+      } @else {
+        Commander
+      }
+    </button>
+  </div>
+}

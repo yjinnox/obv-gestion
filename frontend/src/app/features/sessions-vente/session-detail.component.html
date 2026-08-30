@@ -1,0 +1,70 @@
+@if (recapitulatif.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else if (recapitulatif.value(); as recap) {
+  <button mat-button (click)="retour()">
+    <mat-icon>arrow_back</mat-icon>
+    Retour à la vente
+  </button>
+
+  <div class="entete">
+    <div>
+      <h1 class="entete__titre">Session — {{ recap.session.pointDeVenteLibelle }}</h1>
+      <p class="entete__sous-titre">Ouverte le {{ recap.session.dateOuverture | date: 'dd/MM/yyyy HH:mm' }}</p>
+    </div>
+    <mat-chip-set>
+      <mat-chip>{{ libellesStatut[recap.session.statut] }}</mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <mat-card appearance="outlined" class="recap">
+    <h2>Récapitulatif</h2>
+    <div class="recap__section">
+      <h3>Quantités par marque (demi-casiers)</h3>
+      @for (entree of recap.quantiteParMarqueDemiCasiers | keyvalue; track entree.key) {
+        <div class="recap__ligne"><span>{{ entree.key }}</span><span>{{ entree.value }}</span></div>
+      }
+    </div>
+    <div class="recap__section">
+      <h3>Recette par mode de paiement</h3>
+      @for (entree of recap.recetteParModePaiementXof | keyvalue; track entree.key) {
+        <div class="recap__ligne"><span>{{ entree.key }}</span><span>{{ entree.value | xof }}</span></div>
+      }
+    </div>
+    <div class="recap__ligne recap__ligne--total">
+      <span>Recette totale théorique</span><span>{{ recap.recetteTotaleXof | xof }}</span>
+    </div>
+  </mat-card>
+
+  @if (recap.session.statut === 'OUVERTE' && auth.aLaPermission('SESSION_CLOTURER')) {
+    <mat-card appearance="outlined" class="cloture">
+      <mat-form-field appearance="outline">
+        <mat-label>Montant compté en caisse (XOF)</mat-label>
+        <input matInput type="number" [value]="totalCompte()" (input)="totalCompte.set(+$any($event.target).value)" />
+      </mat-form-field>
+      <button mat-flat-button color="primary" [disabled]="enCours()" (click)="cloturer()">Clôturer la session</button>
+    </mat-card>
+  }
+
+  @if (recap.session.statut === 'CLOTUREE' || recap.session.statut === 'EN_MODIFICATION') {
+    <mat-card appearance="outlined" class="cloture">
+      <div class="recap__ligne"><span>Total compté</span><span>{{ recap.session.totalCompteXof | xof }}</span></div>
+      <div class="recap__ligne"><span>Écart</span><span>{{ recap.session.ecartXof | xof }}</span></div>
+
+      @if (auth.aLaPermission('SESSION_VALIDER')) {
+        @if (estClotureurCourant()) {
+          <p class="rg01-note">
+            Vous avez clôturé cette session : conformément à la séparation des tâches (RG-01), vous ne pouvez pas la
+            valider vous-même.
+          </p>
+        } @else {
+          <button mat-flat-button color="primary" (click)="valider()">Valider la session</button>
+        }
+      }
+      @if (auth.aLaPermission('SESSION_CLOTURER') && recap.session.statut === 'CLOTUREE') {
+        <button mat-stroked-button (click)="demanderModification()">Demander une modification</button>
+      }
+    </mat-card>
+  }
+} @else {
+  <p>Session introuvable.</p>
+}

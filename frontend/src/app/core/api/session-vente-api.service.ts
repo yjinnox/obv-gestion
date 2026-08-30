@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Pageable, PageResponse, versParams } from './pagination';
@@ -23,8 +23,11 @@ export class SessionVenteApiService {
     return this.http.get<SessionVenteResponse>(`${this.base}/${id}`);
   }
 
-  courante(pdv: number): Observable<SessionVenteResponse> {
-    return this.http.get<SessionVenteResponse>(`${this.base}/courante`, { params: versParams(undefined, { pdv }) });
+  courante(pdv: number, context?: HttpContext): Observable<SessionVenteResponse> {
+    return this.http.get<SessionVenteResponse>(`${this.base}/courante`, {
+      params: versParams(undefined, { pdv }),
+      context,
+    });
   }
 
   recapitulatif(id: number): Observable<RecapitulatifSessionVenteResponse> {

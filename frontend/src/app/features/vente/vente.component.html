@@ -1,0 +1,76 @@
+@if (pdvSelectionne() === null) {
+  <h1 class="page__titre">Vente</h1>
+  <mat-form-field appearance="outline" class="selecteur-pdv">
+    <mat-label>Point de vente</mat-label>
+    <mat-select [value]="pdvSelectionne()" (selectionChange)="pdvSelectionne.set($event.value)">
+      @for (pdv of pointsDeVenteDepot(); track pdv.id) {
+        <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+} @else if (sessionCourante.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else if (sessionCourante.value(); as session) {
+  <div class="entete-vente">
+    <span>{{ session.pointDeVenteLibelle }}</span>
+    <span class="entete-vente__actions">
+      <a mat-button [routerLink]="['/sessions-vente', session.id]">Session</a>
+      <button mat-button (click)="pdvSelectionne.set(null)">Changer</button>
+    </span>
+  </div>
+  <div class="grille-produits">
+    @for (item of produitsVendables(); track item.produit.id) {
+      <mat-card appearance="outlined" class="produit-carte">
+        <div class="produit-carte__nom">{{ item.produit.marqueLibelle }} {{ item.produit.volumeLibelle }}</div>
+        <div class="produit-carte__prix">{{ item.prixXof | xof }} / casier</div>
+        <div class="produit-carte__stepper">
+          <button
+            mat-icon-button
+            class="produit-carte__bouton"
+            (click)="decrementer(item.produit)"
+            [disabled]="quantiteDansPanier(item.produit) === 0"
+            aria-label="Retirer un demi-casier"
+          >
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="produit-carte__quantite">{{ quantiteDansPanier(item.produit) }}</span>
+          <button
+            mat-icon-button
+            class="produit-carte__bouton produit-carte__bouton--ajouter"
+            (click)="incrementer(item.produit)"
+            aria-label="Ajouter un demi-casier"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+      </mat-card>
+    }
+  </div>
+
+  <div class="pied-panier">
+    <span class="pied-panier__total">{{ nombreArticles() }} demi-casiers · {{ totalPanierXof() | xof }}</span>
+    <button mat-flat-button color="primary" [disabled]="nombreArticles() === 0" (click)="ouvrirPanier()">
+      Voir le panier
+    </button>
+  </div>
+} @else {
+  <h1 class="page__titre">Ouvrir une session de vente</h1>
+  <form (submit)="onSubmitOuverture($event)" class="ouverture-formulaire" novalidate>
+    @if (formulaireOuverture().errors().length > 0) {
+      <p class="ouverture-formulaire__erreur" role="alert">{{ formulaireOuverture().errors()[0].message }}</p>
+    }
+    <mat-form-field appearance="outline">
+      <mat-label>Point de vente</mat-label>
+      <mat-select [formField]="formulaireOuverture.pointDeVenteId">
+        @for (pdv of pointsDeVenteDepot(); track pdv.id) {
+          <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Fond de caisse (XOF)</mat-label>
+      <input matInput type="number" [formField]="formulaireOuverture.fondCaisseXof" />
+    </mat-form-field>
+    <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">Ouvrir la session</button>
+  </form>
+}

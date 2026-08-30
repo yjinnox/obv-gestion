@@ -111,6 +111,19 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'vente',
+        canActivate: [permissionGuard],
+        data: { permission: 'VENTE_WRITE' },
+        loadComponent: () => import('./features/vente/vente.component').then((m) => m.VenteComponent),
+      },
+      {
+        path: 'sessions-vente/:id',
+        canActivate: [permissionGuard],
+        data: { permission: 'SESSION_CLOTURER' },
+        loadComponent: () =>
+          import('./features/sessions-vente/session-detail.component').then((m) => m.SessionDetailComponent),
+      },
+      {
         path: 'receptions/:id',
         canActivate: [permissionGuard],
         data: { permission: 'RECEPTION_READ' },
