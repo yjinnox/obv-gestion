@@ -1,0 +1,25 @@
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &__titre {
+    margin: 0 0 12px;
+    color: var(--texte);
+  }
+
+  &__erreur {
+    color: var(--erreur);
+    margin: 0 0 12px;
+    font-size: 0.875rem;
+  }
+
+  &__champ {
+    width: 100%;
+  }
+
+  &__bouton {
+    margin-top: 8px;
+    min-height: 48px;
+  }
+}

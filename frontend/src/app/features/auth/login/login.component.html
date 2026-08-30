@@ -1,0 +1,45 @@
+<form (submit)="onSubmit($event)" class="login-form" novalidate>
+  <h2 class="login-form__titre">Connexion</h2>
+
+  @if (connexionForm().errors().length > 0) {
+    <p class="login-form__erreur" role="alert">{{ connexionForm().errors()[0].message }}</p>
+  }
+
+  <mat-form-field appearance="outline" class="login-form__champ">
+    <mat-label>Identifiant (e-mail ou téléphone)</mat-label>
+    <input matInput [formField]="connexionForm.identifiant" autocomplete="username" />
+    @if (connexionForm.identifiant().touched() && connexionForm.identifiant().invalid()) {
+      <mat-error>{{ connexionForm.identifiant().errors()[0].message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="login-form__champ">
+    <mat-label>Mot de passe</mat-label>
+    <input
+      matInput
+      [formField]="connexionForm.motDePasse"
+      [type]="masquerMotDePasse() ? 'password' : 'text'"
+      autocomplete="current-password"
+    />
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="masquerMotDePasse.set(!masquerMotDePasse())"
+      [attr.aria-label]="masquerMotDePasse() ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+    >
+      <mat-icon>{{ masquerMotDePasse() ? 'visibility' : 'visibility_off' }}</mat-icon>
+    </button>
+    @if (connexionForm.motDePasse().touched() && connexionForm.motDePasse().invalid()) {
+      <mat-error>{{ connexionForm.motDePasse().errors()[0].message }}</mat-error>
+    }
+  </mat-form-field>
+
+  <button mat-flat-button color="primary" type="submit" class="login-form__bouton" [disabled]="enCours()">
+    @if (enCours()) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Se connecter
+    }
+  </button>
+</form>

@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.toolbar {
+  background-color: var(--vert-primaire);
+  color: var(--texte-inverse);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  &__titre {
+    margin-left: 8px;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+
+  &__spacer {
+    flex: 1 1 auto;
+  }
+}
+
+.conteneur {
+  height: calc(100% - 56px);
+}
+
+.sidenav {
+  width: 260px;
+  background-color: var(--surface);
+}
+
+.sidenav__lien--actif {
+  background-color: color-mix(in srgb, var(--vert-primaire) 12%, transparent);
+}
+
+.contenu {
+  background-color: var(--fond);
+  min-height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 599px) {
+  .contenu {
+    padding: 12px;
+  }
+}

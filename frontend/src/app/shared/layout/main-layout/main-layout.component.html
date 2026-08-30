@@ -1,0 +1,43 @@
+<mat-toolbar class="toolbar">
+  <button mat-icon-button (click)="basculerSidenav()" aria-label="Ouvrir la navigation">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="toolbar__titre">OBV Gestion</span>
+  <span class="toolbar__spacer"></span>
+  <button mat-icon-button [matMenuTriggerFor]="menuUtilisateur" aria-label="Compte">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #menuUtilisateur="matMenu">
+    <button mat-menu-item (click)="seDeconnecter()">
+      <mat-icon>logout</mat-icon>
+      <span>Se déconnecter</span>
+    </button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="conteneur">
+  <mat-sidenav
+    [mode]="modeSidenav()"
+    [opened]="sidenavOuverte()"
+    (closedStart)="sidenavOuverte.set(false)"
+    class="sidenav"
+  >
+    <mat-nav-list>
+      @for (item of navItems(); track item.route) {
+        <a
+          mat-list-item
+          [routerLink]="item.route"
+          routerLinkActive="sidenav__lien--actif"
+          (click)="fermerSiMobile()"
+        >
+          <mat-icon matListItemIcon>{{ item.icone }}</mat-icon>
+          <span matListItemTitle>{{ item.libelle }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="contenu">
+    <router-outlet />
+  </mat-sidenav-content>
+</mat-sidenav-container>

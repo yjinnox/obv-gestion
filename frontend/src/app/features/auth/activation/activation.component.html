@@ -1,0 +1,98 @@
+<h2 class="activation__titre">{{ titre() }}</h2>
+
+@switch (etape()) {
+  @case ('lien-invalide') {
+    <p class="activation__message">
+      Ce lien d'activation est invalide. Vérifiez que vous avez copié le lien complet reçu par e-mail ou SMS.
+    </p>
+    <a mat-flat-button color="primary" routerLink="/connexion">Aller à la connexion</a>
+  }
+
+  @case ('mot-de-passe') {
+    <form (submit)="onSubmitMotDePasse($event)" class="activation-form" novalidate>
+      @if (mdpForm().errors().length > 0) {
+        <p class="activation__erreur" role="alert">{{ mdpForm().errors()[0].message }}</p>
+      }
+
+      <mat-form-field appearance="outline" class="activation-form__champ">
+        <mat-label>Nouveau mot de passe</mat-label>
+        <input
+          matInput
+          [formField]="mdpForm.motDePasse"
+          [type]="masquerMotDePasse() ? 'password' : 'text'"
+          autocomplete="new-password"
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="masquerMotDePasse.set(!masquerMotDePasse())"
+          [attr.aria-label]="masquerMotDePasse() ? 'Afficher le mot de passe' : 'Masquer le mot de passe'"
+        >
+          <mat-icon>{{ masquerMotDePasse() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (mdpForm.motDePasse().touched() && mdpForm.motDePasse().invalid()) {
+          <mat-error>{{ mdpForm.motDePasse().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="activation-form__champ">
+        <mat-label>Confirmation</mat-label>
+        <input
+          matInput
+          [formField]="mdpForm.confirmation"
+          [type]="masquerMotDePasse() ? 'password' : 'text'"
+          autocomplete="new-password"
+        />
+        @if (mdpForm.confirmation().touched() && mdpForm.confirmation().invalid()) {
+          <mat-error>{{ mdpForm.confirmation().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" class="activation-form__bouton" [disabled]="enCours()">
+        @if (enCours()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Continuer
+        }
+      </button>
+    </form>
+  }
+
+  @case ('otp') {
+    <p class="activation__message">
+      Un code à 6 chiffres vous a été envoyé. Saisissez-le pour activer votre compte.
+    </p>
+    <form (submit)="onSubmitOtp($event)" class="activation-form" novalidate>
+      @if (otpForm().errors().length > 0) {
+        <p class="activation__erreur" role="alert">{{ otpForm().errors()[0].message }}</p>
+      }
+
+      <mat-form-field appearance="outline" class="activation-form__champ">
+        <mat-label>Code de vérification</mat-label>
+        <input matInput [formField]="otpForm.code" inputmode="numeric" autocomplete="one-time-code" />
+        @if (otpForm.code().touched() && otpForm.code().invalid()) {
+          <mat-error>{{ otpForm.code().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" class="activation-form__bouton" [disabled]="enCours()">
+        @if (enCours()) {
+          <mat-spinner diameter="20" />
+        } @else {
+          Activer mon compte
+        }
+      </button>
+      <button mat-button type="button" [disabled]="enCours()" (click)="renvoyerOtp()">
+        Renvoyer le code
+      </button>
+    </form>
+  }
+
+  @case ('termine') {
+    <p class="activation__message">
+      Votre compte est activé. Vous pouvez maintenant vous connecter.
+    </p>
+    <button mat-flat-button color="primary" (click)="allerConnexion()">Se connecter</button>
+  }
+}
