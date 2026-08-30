@@ -1,0 +1,80 @@
+<h1 class="liste__titre">Produits</h1>
+
+@if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+  <form (submit)="onSubmit($event)" class="liste__formulaire" novalidate>
+    @if (formulaire().errors().length > 0) {
+      <p class="liste__erreur" role="alert">{{ formulaire().errors()[0].message }}</p>
+    }
+    @if (idEnEdition() === null) {
+      <mat-form-field appearance="outline" class="liste__champ">
+        <mat-label>Marque</mat-label>
+        <mat-select [formField]="formulaire.marqueId">
+          @for (marque of marques.value()?.content ?? []; track marque.id) {
+            <mat-option [value]="marque.id">{{ marque.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="liste__champ">
+        <mat-label>Volume</mat-label>
+        <mat-select [formField]="formulaire.volumeId">
+          @for (volume of volumes.value()?.content ?? []; track volume.id) {
+            <mat-option [value]="volume.id">{{ volume.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline" class="liste__champ">
+        <mat-label>Consigne (XOF)</mat-label>
+        <input matInput type="number" [formField]="formulaire.montantConsigneXof" />
+        @if (formulaire.montantConsigneXof().touched() && formulaire.montantConsigneXof().invalid()) {
+          <mat-error>{{ formulaire.montantConsigneXof().errors()[0].message }}</mat-error>
+        }
+      </mat-form-field>
+    }
+    <div class="liste__actions-formulaire">
+      <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">
+        {{ idEnEdition() === null ? 'Ajouter' : 'Enregistrer' }}
+      </button>
+      @if (idEnEdition() !== null) {
+        <button mat-button type="button" (click)="annulerEdition()">Annuler</button>
+      }
+    </div>
+  </form>
+}
+
+@if (produits.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="produits.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="produit">
+      <th mat-header-cell *matHeaderCellDef>Produit</th>
+      <td mat-cell *matCellDef="let p">{{ p.marqueLibelle }} {{ p.volumeLibelle }}</td>
+    </ng-container>
+    <ng-container matColumnDef="montantConsigneXof">
+      <th mat-header-cell *matHeaderCellDef>Consigne</th>
+      <td mat-cell *matCellDef="let p">{{ p.montantConsigneXof | xof }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actif">
+      <th mat-header-cell *matHeaderCellDef>Actif</th>
+      <td mat-cell *matCellDef="let p">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <mat-slide-toggle [checked]="p.actif" (change)="basculerActif(p)" />
+        } @else {
+          {{ p.actif ? 'Oui' : 'Non' }}
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let p">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <button mat-icon-button (click)="modifier(p)" aria-label="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes"></tr>
+  </table>
+}

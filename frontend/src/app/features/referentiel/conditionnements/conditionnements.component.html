@@ -1,0 +1,62 @@
+<h1 class="liste__titre">Conditionnements</h1>
+
+@if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+  <form (submit)="onSubmit($event)" class="liste__formulaire" novalidate>
+    @if (formulaire().errors().length > 0) {
+      <p class="liste__erreur" role="alert">{{ formulaire().errors()[0].message }}</p>
+    }
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Produit</mat-label>
+      <mat-select [formField]="formulaire.produitId">
+        @for (produit of produits.value()?.content ?? []; track produit.id) {
+          <mat-option [value]="produit.id">{{ produit.marqueLibelle }} {{ produit.volumeLibelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Capacité (bouteilles)</mat-label>
+      <input matInput type="number" [formField]="formulaire.capaciteBouteilles" />
+      @if (formulaire.capaciteBouteilles().touched() && formulaire.capaciteBouteilles().invalid()) {
+        <mat-error>{{ formulaire.capaciteBouteilles().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+    <div class="liste__actions-formulaire">
+      <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">Ajouter</button>
+    </div>
+  </form>
+}
+
+@if (conditionnements.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="conditionnements.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="produit">
+      <th mat-header-cell *matHeaderCellDef>Produit</th>
+      <td mat-cell *matCellDef="let c">{{ libelleProduit(c.produitId) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="capaciteBouteilles">
+      <th mat-header-cell *matHeaderCellDef>Capacité</th>
+      <td mat-cell *matCellDef="let c">{{ c.capaciteBouteilles }} bouteilles</td>
+    </ng-container>
+    <ng-container matColumnDef="demiCasierAutorise">
+      <th mat-header-cell *matHeaderCellDef>Demi-casier</th>
+      <td mat-cell *matCellDef="let c">{{ c.demiCasierAutorise ? 'Autorisé' : 'Non' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actif">
+      <th mat-header-cell *matHeaderCellDef>Actif</th>
+      <td mat-cell *matCellDef="let c">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <mat-slide-toggle [checked]="c.actif" (change)="basculerActif(c)" />
+        } @else {
+          {{ c.actif ? 'Oui' : 'Non' }}
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let c"></td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes"></tr>
+  </table>
+}

@@ -1,0 +1,97 @@
+<h1 class="liste__titre">Tarifs</h1>
+
+@if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+  <form (submit)="onSubmit($event)" class="liste__formulaire" novalidate>
+    @if (formulaire().errors().length > 0) {
+      <p class="liste__erreur" role="alert">{{ formulaire().errors()[0].message }}</p>
+    }
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Point de vente</mat-label>
+      <mat-select [formField]="formulaire.pointDeVenteId">
+        @for (pdv of pointsDeVente.value()?.content ?? []; track pdv.id) {
+          <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Produit</mat-label>
+      <mat-select [formField]="formulaire.produitId">
+        @for (produit of produits.value()?.content ?? []; track produit.id) {
+          <mat-option [value]="produit.id">{{ produit.marqueLibelle }} {{ produit.volumeLibelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Nature</mat-label>
+      <mat-select [formField]="formulaire.nature">
+        <mat-option value="ACHAT">Achat (fournisseur)</mat-option>
+        <mat-option value="VENTE">Vente (public)</mat-option>
+        <mat-option value="CESSION">Cession (dépôt → bar)</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Unité</mat-label>
+      <mat-select [formField]="formulaire.uniteVente">
+        <mat-option value="CASIER">Casier</mat-option>
+        <mat-option value="BOUTEILLE">Bouteille</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Montant (XOF)</mat-label>
+      <input matInput type="number" [formField]="formulaire.montantXof" />
+      @if (formulaire.montantXof().touched() && formulaire.montantXof().invalid()) {
+        <mat-error>{{ formulaire.montantXof().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Date de début</mat-label>
+      <input matInput type="date" [formField]="formulaire.dateDebut" />
+    </mat-form-field>
+    <div class="liste__actions-formulaire">
+      <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">Créer le tarif</button>
+    </div>
+  </form>
+}
+
+<mat-form-field appearance="outline" class="liste__champ">
+  <mat-label>Filtrer par point de vente</mat-label>
+  <mat-select [value]="filtrePdv()" (selectionChange)="filtrePdv.set($event.value)">
+    <mat-option [value]="null">Tous</mat-option>
+    @for (pdv of pointsDeVente.value()?.content ?? []; track pdv.id) {
+      <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>
+
+@if (tarifs.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="tarifs.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="pointDeVente">
+      <th mat-header-cell *matHeaderCellDef>Point de vente</th>
+      <td mat-cell *matCellDef="let t">{{ libellePointDeVente(t.pointDeVenteId) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="produit">
+      <th mat-header-cell *matHeaderCellDef>Produit</th>
+      <td mat-cell *matCellDef="let t">{{ libelleProduit(t.produitId) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="nature">
+      <th mat-header-cell *matHeaderCellDef>Nature</th>
+      <td mat-cell *matCellDef="let t">{{ t.nature }}</td>
+    </ng-container>
+    <ng-container matColumnDef="uniteVente">
+      <th mat-header-cell *matHeaderCellDef>Unité</th>
+      <td mat-cell *matCellDef="let t">{{ t.uniteVente }}</td>
+    </ng-container>
+    <ng-container matColumnDef="montantXof">
+      <th mat-header-cell *matHeaderCellDef>Montant</th>
+      <td mat-cell *matCellDef="let t">{{ t.montantXof | xof }}</td>
+    </ng-container>
+    <ng-container matColumnDef="periode">
+      <th mat-header-cell *matHeaderCellDef>Période</th>
+      <td mat-cell *matCellDef="let t">{{ t.dateDebut }} → {{ t.dateFin ?? 'en cours' }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes"></tr>
+  </table>
+}

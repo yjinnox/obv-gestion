@@ -1,0 +1,46 @@
+:host {
+  display: block;
+}
+
+.liste__titre {
+  margin: 0 0 16px;
+}
+
+.liste__formulaire {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background-color: var(--surface);
+  border-radius: 4px;
+}
+
+.liste__champ {
+  flex: 1 1 200px;
+  min-width: 160px;
+}
+
+.liste__actions-formulaire {
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.liste__table {
+  width: 100%;
+  background-color: var(--surface);
+}
+
+.liste__erreur {
+  color: var(--erreur);
+  width: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+td.mat-column-actions,
+th.mat-column-actions {
+  text-align: right;
+}

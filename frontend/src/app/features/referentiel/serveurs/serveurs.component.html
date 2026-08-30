@@ -1,0 +1,86 @@
+<h1 class="liste__titre">Serveurs</h1>
+
+@if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+  <form (submit)="onSubmit($event)" class="liste__formulaire" novalidate>
+    @if (formulaire().errors().length > 0) {
+      <p class="liste__erreur" role="alert">{{ formulaire().errors()[0].message }}</p>
+    }
+    @if (idEnEdition() === null) {
+      <mat-form-field appearance="outline" class="liste__champ">
+        <mat-label>Point de vente (bar)</mat-label>
+        <mat-select [formField]="formulaire.pointDeVenteId">
+          @for (pdv of optionsPointDeVenteBar(); track pdv.id) {
+            <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Nom</mat-label>
+      <input matInput [formField]="formulaire.nom" />
+      @if (formulaire.nom().touched() && formulaire.nom().invalid()) {
+        <mat-error>{{ formulaire.nom().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Prénoms</mat-label>
+      <input matInput [formField]="formulaire.prenoms" />
+      @if (formulaire.prenoms().touched() && formulaire.prenoms().invalid()) {
+        <mat-error>{{ formulaire.prenoms().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Téléphone</mat-label>
+      <input matInput [formField]="formulaire.telephone" />
+    </mat-form-field>
+    <div class="liste__actions-formulaire">
+      <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">
+        {{ idEnEdition() === null ? 'Ajouter' : 'Enregistrer' }}
+      </button>
+      @if (idEnEdition() !== null) {
+        <button mat-button type="button" (click)="annulerEdition()">Annuler</button>
+      }
+    </div>
+  </form>
+}
+
+@if (serveurs.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="serveurs.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="nom">
+      <th mat-header-cell *matHeaderCellDef>Nom</th>
+      <td mat-cell *matCellDef="let s">{{ s.nom }} {{ s.prenoms }}</td>
+    </ng-container>
+    <ng-container matColumnDef="pointDeVente">
+      <th mat-header-cell *matHeaderCellDef>Point de vente</th>
+      <td mat-cell *matCellDef="let s">{{ libellePointDeVente(s.pointDeVenteId) }}</td>
+    </ng-container>
+    <ng-container matColumnDef="telephone">
+      <th mat-header-cell *matHeaderCellDef>Téléphone</th>
+      <td mat-cell *matCellDef="let s">{{ s.telephone }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actif">
+      <th mat-header-cell *matHeaderCellDef>Actif</th>
+      <td mat-cell *matCellDef="let s">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <mat-slide-toggle [checked]="s.actif" (change)="basculerActif(s)" />
+        } @else {
+          {{ s.actif ? 'Oui' : 'Non' }}
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let s">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <button mat-icon-button (click)="modifier(s)" aria-label="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes"></tr>
+  </table>
+}

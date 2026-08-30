@@ -1,0 +1,61 @@
+<h1 class="dashboard__titre">Tableau de bord</h1>
+
+@if (auth.aLaPermission('RAPPORT_READ')) {
+  <mat-form-field appearance="outline" class="dashboard__selecteur-pdv">
+    <mat-label>Point de vente</mat-label>
+    <mat-select [value]="pdvSelectionne()" (selectionChange)="pdvSelectionne.set($event.value)">
+      @for (pdv of pointsDeVente.value()?.content ?? []; track pdv.id) {
+        <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (rapportDuJour.isLoading()) {
+    <mat-spinner diameter="32" />
+  } @else if (rapportDuJour.value(); as rapport) {
+    <div class="dashboard__kpis">
+      <mat-card appearance="outlined" class="kpi-card">
+        <span class="kpi-card__libelle">Quantité vendue aujourd'hui</span>
+        <span class="kpi-card__valeur">{{ rapport.quantiteTotale }}</span>
+      </mat-card>
+      <mat-card appearance="outlined" class="kpi-card kpi-card--accent">
+        <span class="kpi-card__libelle">Recette du jour</span>
+        <span class="kpi-card__valeur">{{ rapport.recetteTotaleXof | xof }}</span>
+      </mat-card>
+    </div>
+
+    @if (entreesModePaiement().length > 0) {
+      <mat-card appearance="outlined" class="dashboard__detail">
+        <h2>Recette par mode de paiement</h2>
+        @for (entree of entreesModePaiement(); track entree[0]) {
+          <div class="dashboard__ligne-detail">
+            <span>{{ libellesModePaiement[entree[0]] ?? entree[0] }}</span>
+            <span>{{ entree[1] | xof }}</span>
+          </div>
+        }
+      </mat-card>
+    }
+
+    @if (entreesParServeur().length > 0) {
+      <mat-card appearance="outlined" class="dashboard__detail">
+        <h2>Quantité par serveur</h2>
+        @for (entree of entreesParServeur(); track entree[0]) {
+          <div class="dashboard__ligne-detail">
+            <span>{{ entree[0] }}</span>
+            <span>{{ entree[1] }}</span>
+          </div>
+        }
+      </mat-card>
+    }
+  }
+}
+
+<h2 class="dashboard__sous-titre">Accès rapides</h2>
+<div class="dashboard__liens">
+  @for (lien of lienRapides; track lien.route) {
+    <mat-card appearance="outlined" class="lien-rapide" [routerLink]="lien.route">
+      <mat-icon>{{ lien.icone }}</mat-icon>
+      <span>{{ lien.libelle }}</span>
+    </mat-card>
+  }
+</div>

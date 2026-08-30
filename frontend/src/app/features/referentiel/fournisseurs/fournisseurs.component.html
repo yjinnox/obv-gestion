@@ -1,0 +1,77 @@
+<h1 class="liste__titre">Fournisseurs</h1>
+
+@if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+  <form (submit)="onSubmit($event)" class="liste__formulaire" novalidate>
+    @if (formulaire().errors().length > 0) {
+      <p class="liste__erreur" role="alert">{{ formulaire().errors()[0].message }}</p>
+    }
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Raison sociale</mat-label>
+      <input matInput [formField]="formulaire.raisonSociale" />
+      @if (formulaire.raisonSociale().touched() && formulaire.raisonSociale().invalid()) {
+        <mat-error>{{ formulaire.raisonSociale().errors()[0].message }}</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Téléphone</mat-label>
+      <input matInput [formField]="formulaire.telephone" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>E-mail</mat-label>
+      <input matInput [formField]="formulaire.email" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="liste__champ">
+      <mat-label>Adresse</mat-label>
+      <input matInput [formField]="formulaire.adresse" />
+    </mat-form-field>
+    <div class="liste__actions-formulaire">
+      <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">
+        {{ idEnEdition() === null ? 'Ajouter' : 'Enregistrer' }}
+      </button>
+      @if (idEnEdition() !== null) {
+        <button mat-button type="button" (click)="annulerEdition()">Annuler</button>
+      }
+    </div>
+  </form>
+}
+
+@if (fournisseurs.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="fournisseurs.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="raisonSociale">
+      <th mat-header-cell *matHeaderCellDef>Raison sociale</th>
+      <td mat-cell *matCellDef="let f">{{ f.raisonSociale }}</td>
+    </ng-container>
+    <ng-container matColumnDef="telephone">
+      <th mat-header-cell *matHeaderCellDef>Téléphone</th>
+      <td mat-cell *matCellDef="let f">{{ f.telephone }}</td>
+    </ng-container>
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>E-mail</th>
+      <td mat-cell *matCellDef="let f">{{ f.email }}</td>
+    </ng-container>
+    <ng-container matColumnDef="actif">
+      <th mat-header-cell *matHeaderCellDef>Actif</th>
+      <td mat-cell *matCellDef="let f">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <mat-slide-toggle [checked]="f.actif" (change)="basculerActif(f)" />
+        } @else {
+          {{ f.actif ? 'Oui' : 'Non' }}
+        }
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let f">
+        @if (auth.aLaPermission('REFERENTIEL_WRITE')) {
+          <button mat-icon-button (click)="modifier(f)" aria-label="Modifier">
+            <mat-icon>edit</mat-icon>
+          </button>
+        }
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes"></tr>
+  </table>
+}
