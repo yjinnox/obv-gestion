@@ -150,6 +150,24 @@ export const routes: Routes = [
             (m) => m.ReceptionDetailComponent,
           ),
       },
+      {
+        path: 'tickets-serveur',
+        canActivate: [permissionGuard],
+        data: { permission: 'VENTE_WRITE' },
+        loadComponent: () =>
+          import('./features/tickets-serveur/liste/tickets-serveur-liste.component').then(
+            (m) => m.TicketsServeurListeComponent,
+          ),
+      },
+      {
+        path: 'tickets-serveur/:id',
+        canActivate: [permissionGuard],
+        data: { permission: 'VENTE_WRITE' },
+        loadComponent: () =>
+          import('./features/tickets-serveur/detail/ticket-detail.component').then(
+            (m) => m.TicketDetailComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'tableau-de-bord' },

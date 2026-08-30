@@ -1,0 +1,68 @@
+@if (ticket.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else if (ticket.value(); as t) {
+  <button mat-button (click)="retourListe()">
+    <mat-icon>arrow_back</mat-icon>
+    Retour
+  </button>
+
+  <div class="entete">
+    <div>
+      <h1 class="entete__titre">Ticket — {{ t.serveurNom }} {{ t.serveurPrenoms }}</h1>
+    </div>
+    <mat-chip-set>
+      <mat-chip>{{ libellesStatut[t.statut] }}</mat-chip>
+    </mat-chip-set>
+  </div>
+
+  @if (t.statut === 'OUVERT') {
+    <div class="grille-produits">
+      @for (item of produitsVendables(); track item.produit.id) {
+        <mat-card appearance="outlined" class="produit-carte" (click)="ajouterBouteille(item.produit)">
+          <span class="produit-carte__nom">{{ item.produit.marqueLibelle }} {{ item.produit.volumeLibelle }}</span>
+          <span class="produit-carte__prix">{{ item.prixXof | xof }} / bouteille</span>
+          <mat-icon class="produit-carte__ajouter">add_circle</mat-icon>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <table mat-table [dataSource]="t.lignes" class="liste__table">
+    <ng-container matColumnDef="produit">
+      <th mat-header-cell *matHeaderCellDef>Produit</th>
+      <td mat-cell *matCellDef="let l">{{ l.marqueLibelle }} {{ l.volumeLibelle }}</td>
+    </ng-container>
+    <ng-container matColumnDef="quantiteBouteilles">
+      <th mat-header-cell *matHeaderCellDef>Bouteilles</th>
+      <td mat-cell *matCellDef="let l">{{ l.quantiteBouteilles }}</td>
+    </ng-container>
+    <ng-container matColumnDef="prixVenteBouteilleXof">
+      <th mat-header-cell *matHeaderCellDef>Prix unitaire</th>
+      <td mat-cell *matCellDef="let l">{{ l.prixVenteBouteilleXof | xof }}</td>
+    </ng-container>
+    <ng-container matColumnDef="montantLigneXof">
+      <th mat-header-cell *matHeaderCellDef>Montant</th>
+      <td mat-cell *matCellDef="let l">{{ l.montantLigneXof | xof }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnesLignes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnesLignes"></tr>
+  </table>
+
+  <p class="total">Total : {{ t.montantTotalXof | xof }}</p>
+
+  @if (t.statut === 'OUVERT' && t.lignes.length > 0) {
+    <div class="encaissement">
+      <mat-form-field appearance="outline">
+        <mat-label>Mode de paiement</mat-label>
+        <mat-select [value]="modePaiement()" (selectionChange)="modePaiement.set($event.value)">
+          <mat-option value="ESPECES">Espèces</mat-option>
+          <mat-option value="MOBILE_MONEY">Mobile money</mat-option>
+          <mat-option value="CARTE_BANCAIRE">Carte bancaire</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <button mat-flat-button color="primary" (click)="encaisser()">Encaisser</button>
+    </div>
+  }
+} @else {
+  <p>Ticket introuvable.</p>
+}

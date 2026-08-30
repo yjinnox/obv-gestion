@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.page__titre {
+  margin: 0 0 16px;
+}
+
+.selecteur-pdv {
+  width: 100%;
+  max-width: 360px;
+}
+
+.entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-weight: 500;
+
+  &__actions {
+    display: flex;
+    gap: 4px;
+  }
+}
+
+.nouveau-ticket {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.grille-tickets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.ticket-carte {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--vert-primaire) 6%, var(--surface));
+  }
+
+  &__serveur {
+    font-weight: 500;
+  }
+
+  &__montant {
+    font-size: 1.25rem;
+  }
+}
+
+.ouverture-formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 360px;
+
+  &__erreur {
+    color: var(--erreur);
+    margin: 0;
+  }
+}

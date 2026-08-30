@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+
+.entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin: 8px 0 16px;
+
+  &__titre {
+    margin: 0;
+  }
+}
+
+.grille-produits {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.produit-carte {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  min-height: 96px;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--vert-accent) 10%, var(--surface));
+  }
+
+  &__nom {
+    font-weight: 500;
+  }
+
+  &__prix {
+    font-size: 0.8125rem;
+    opacity: 0.75;
+  }
+
+  &__ajouter {
+    color: var(--vert-accent);
+    align-self: flex-end;
+  }
+}
+
+.liste__table {
+  width: 100%;
+  background-color: var(--surface);
+}
+
+.total {
+  text-align: right;
+  font-weight: 500;
+  font-size: 1.125rem;
+  margin: 12px 0;
+}
+
+.encaissement {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
