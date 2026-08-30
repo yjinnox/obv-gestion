@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -15,6 +16,10 @@ import java.util.stream.Collectors;
 
 @Repository
 class VenteRepositoryAdapter implements VenteRepository {
+
+    /** Bornes larges substituées à {@code du}/{@code au} absents (même raison que MouvementStockRepositoryAdapter). */
+    private static final Instant DEBUT_DEFAUT = Instant.parse("0001-01-01T00:00:00Z");
+    private static final Instant FIN_DEFAUT = Instant.parse("9999-12-31T23:59:59Z");
 
     private final VenteJpaRepository jpaRepository;
 
@@ -41,6 +46,12 @@ class VenteRepositoryAdapter implements VenteRepository {
     @Override
     public List<Vente> parSession(Long sessionVenteId) {
         return jpaRepository.parSession(sessionVenteId);
+    }
+
+    @Override
+    public List<Vente> parPointDeVenteEtPeriode(Long pointDeVenteId, Instant du, Instant au) {
+        return jpaRepository.parPointDeVenteEtPeriode(pointDeVenteId, du == null ? DEBUT_DEFAUT : du,
+                au == null ? FIN_DEFAUT : au);
     }
 
     @Override

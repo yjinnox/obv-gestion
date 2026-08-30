@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +17,10 @@ import java.util.stream.Collectors;
 
 @Repository
 class TicketServeurRepositoryAdapter implements TicketServeurRepository {
+
+    /** Bornes larges substituées à {@code du}/{@code au} absents (même raison que MouvementStockRepositoryAdapter). */
+    private static final Instant DEBUT_DEFAUT = Instant.parse("0001-01-01T00:00:00Z");
+    private static final Instant FIN_DEFAUT = Instant.parse("9999-12-31T23:59:59Z");
 
     private final TicketServeurJpaRepository jpaRepository;
 
@@ -36,6 +41,12 @@ class TicketServeurRepositoryAdapter implements TicketServeurRepository {
     @Override
     public List<TicketServeur> parSession(Long sessionVenteId) {
         return jpaRepository.parSession(sessionVenteId);
+    }
+
+    @Override
+    public List<TicketServeur> parPointDeVenteEtPeriode(Long pointDeVenteId, Instant du, Instant au) {
+        return jpaRepository.parPointDeVenteEtPeriode(pointDeVenteId, du == null ? DEBUT_DEFAUT : du,
+                au == null ? FIN_DEFAUT : au, StatutTicketServeur.ENCAISSE);
     }
 
     @Override
