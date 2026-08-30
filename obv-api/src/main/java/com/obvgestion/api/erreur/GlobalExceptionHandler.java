@@ -4,6 +4,7 @@ import com.obvgestion.domain.commun.RegleGestionException;
 import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.bar.TicketServeurInvalideException;
 import com.obvgestion.domain.reception.ReceptionInvalideException;
+import com.obvgestion.domain.referentiel.ClientInvalideException;
 import com.obvgestion.domain.stock.StockInsuffisantException;
 import com.obvgestion.domain.transfert.TransfertInvalideException;
 import com.obvgestion.domain.utilisateur.AutoModificationInterditeException;
@@ -46,6 +47,7 @@ class GlobalExceptionHandler {
             case TransfertInvalideException ignored -> HttpStatus.CONFLICT;
             case TicketServeurInvalideException ignored -> HttpStatus.CONFLICT;
             case StockInsuffisantException ignored -> HttpStatus.CONFLICT;
+            case ClientInvalideException ignored -> HttpStatus.CONFLICT;
             case SeparationDesTachesException ignored -> HttpStatus.FORBIDDEN;
             default -> HttpStatus.BAD_REQUEST;
         };

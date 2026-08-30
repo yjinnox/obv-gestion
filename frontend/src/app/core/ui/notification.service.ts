@@ -7,10 +7,10 @@ export class NotificationService {
   private readonly snackBar = inject(MatSnackBar);
 
   succes(message: string): void {
-    this.snackBar.open(message, 'Fermer', { duration: 4000, panelClass: 'notification-succes' });
+    this.snackBar.open(message, 'Fermer', { duration: 4000, panelClass: 'notification-succes', verticalPosition: 'top' });
   }
 
   erreur(message: string): void {
-    this.snackBar.open(message, 'Fermer', { duration: 6000, panelClass: 'notification-erreur' });
+    this.snackBar.open(message, 'Fermer', { duration: 6000, panelClass: 'notification-erreur', verticalPosition: 'top' });
   }
 }

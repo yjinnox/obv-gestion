@@ -61,6 +61,13 @@ export class VenteComponent {
   protected readonly enCours = signal(false);
   protected readonly pdvSelectionne = signal<number | null>(null);
 
+  // Un tap rapide sur le stepper (§15.3) peut déclencher un second clic
+  // avant que le premier aller-retour réseau n'ait rechargé le panier :
+  // sans ce verrou, `incrementer`/`decrementer` liraient tous deux
+  // l'ancienne quantité et produiraient deux ajouts au lieu d'un
+  // incrément de deux.
+  protected readonly produitsEnCours = signal<ReadonlySet<number>>(new Set());
+
   protected readonly pointsDeVente = rxResource({
     stream: () => this.referentielApi.pointsDeVente.lister({ actif: true }, { size: 100 }),
   });
@@ -128,40 +135,66 @@ export class VenteComponent {
     return this.panier.value()?.lignes.find((l) => l.produitId === produit.id);
   }
 
+  protected estEnCours(produit: ProduitResponse): boolean {
+    return this.produitsEnCours().has(produit.id);
+  }
+
+  private marquerEnCours(produitId: number, enCours: boolean): void {
+    this.produitsEnCours.update((ids) => {
+      const copie = new Set(ids);
+      if (enCours) {
+        copie.add(produitId);
+      } else {
+        copie.delete(produitId);
+      }
+      return copie;
+    });
+  }
+
   protected async incrementer(produit: ProduitResponse): Promise<void> {
     const session = this.sessionCourante.value();
-    if (!session) return;
-    const ligne = this.ligneDuPanier(produit);
-    if (ligne) {
-      await firstValueFrom(
-        this.panierApi.modifierLigne(ligne.id, {
-          sessionVenteId: session.id,
-          quantiteDemiCasiers: ligne.quantiteDemiCasiers + 1,
-        }),
-      );
-    } else {
-      await firstValueFrom(
-        this.panierApi.ajouterLigne({ sessionVenteId: session.id, produitId: produit.id, quantiteDemiCasiers: 1 }),
-      );
+    if (!session || this.estEnCours(produit)) return;
+    this.marquerEnCours(produit.id, true);
+    try {
+      const ligne = this.ligneDuPanier(produit);
+      if (ligne) {
+        await firstValueFrom(
+          this.panierApi.modifierLigne(ligne.id, {
+            sessionVenteId: session.id,
+            quantiteDemiCasiers: ligne.quantiteDemiCasiers + 1,
+          }),
+        );
+      } else {
+        await firstValueFrom(
+          this.panierApi.ajouterLigne({ sessionVenteId: session.id, produitId: produit.id, quantiteDemiCasiers: 1 }),
+        );
+      }
+      this.panier.reload();
+    } finally {
+      this.marquerEnCours(produit.id, false);
     }
-    this.panier.reload();
   }
 
   protected async decrementer(produit: ProduitResponse): Promise<void> {
     const session = this.sessionCourante.value();
     const ligne = this.ligneDuPanier(produit);
-    if (!session || !ligne) return;
-    if (ligne.quantiteDemiCasiers <= 1) {
-      await firstValueFrom(this.panierApi.supprimerLigne(ligne.id, session.id));
-    } else {
-      await firstValueFrom(
-        this.panierApi.modifierLigne(ligne.id, {
-          sessionVenteId: session.id,
-          quantiteDemiCasiers: ligne.quantiteDemiCasiers - 1,
-        }),
-      );
+    if (!session || !ligne || this.estEnCours(produit)) return;
+    this.marquerEnCours(produit.id, true);
+    try {
+      if (ligne.quantiteDemiCasiers <= 1) {
+        await firstValueFrom(this.panierApi.supprimerLigne(ligne.id, session.id));
+      } else {
+        await firstValueFrom(
+          this.panierApi.modifierLigne(ligne.id, {
+            sessionVenteId: session.id,
+            quantiteDemiCasiers: ligne.quantiteDemiCasiers - 1,
+          }),
+        );
+      }
+      this.panier.reload();
+    } finally {
+      this.marquerEnCours(produit.id, false);
     }
-    this.panier.reload();
   }
 
   protected async onSubmitOuverture(event: Event): Promise<void> {

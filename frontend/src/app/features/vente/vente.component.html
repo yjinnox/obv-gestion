@@ -28,7 +28,7 @@
             mat-icon-button
             class="produit-carte__bouton"
             (click)="decrementer(item.produit)"
-            [disabled]="quantiteDansPanier(item.produit) === 0"
+            [disabled]="quantiteDansPanier(item.produit) === 0 || estEnCours(item.produit)"
             aria-label="Retirer un demi-casier"
           >
             <mat-icon>remove</mat-icon>
@@ -38,6 +38,7 @@
             mat-icon-button
             class="produit-carte__bouton produit-carte__bouton--ajouter"
             (click)="incrementer(item.produit)"
+            [disabled]="estEnCours(item.produit)"
             aria-label="Ajouter un demi-casier"
           >
             <mat-icon>add</mat-icon>

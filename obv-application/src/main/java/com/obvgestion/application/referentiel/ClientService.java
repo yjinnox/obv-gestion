@@ -1,6 +1,7 @@
 package com.obvgestion.application.referentiel;
 
 import com.obvgestion.domain.referentiel.Client;
+import com.obvgestion.domain.referentiel.ClientInvalideException;
 import com.obvgestion.domain.referentiel.TypeClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,9 @@ public class ClientService {
     @Transactional
     public Client creer(TypeClient type, String nom, String prenoms, String raisonSociale, String telephone,
                          String email, String adresseFacturation) {
+        if (repository.parTelephone(telephone).isPresent()) {
+            throw new ClientInvalideException("Ce numéro de téléphone est déjà utilisé par un autre client.");
+        }
         return repository.enregistrer(
                 Client.creer(type, nom, prenoms, raisonSociale, telephone, email, adresseFacturation));
     }
