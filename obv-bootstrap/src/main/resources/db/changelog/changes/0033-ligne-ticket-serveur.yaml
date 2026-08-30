@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0033-ligne-ticket-serveur
+      author: obv-gestion
+      comment: "§10 — lignes d'un ticket serveur (produit, bouteilles entières RG-12, prix figé)."
+      changes:
+        - createTable:
+            tableName: ligne_ticket_serveur
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: ticket_serveur_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_ligne_ticket_serveur_ticket, references: "ticket_serveur(id)"}}
+              - column: {name: produit_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_ligne_ticket_serveur_produit, references: "produit(id)"}}
+              - column: {name: quantite_bouteilles, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: prix_vente_bouteille_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - createIndex:
+            tableName: ligne_ticket_serveur
+            indexName: ix_ligne_ticket_serveur_ticket
+            columns:
+              - column: {name: ticket_serveur_id}

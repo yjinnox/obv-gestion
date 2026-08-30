@@ -1,12 +1,15 @@
 package com.obvgestion.application.vente;
 
 import com.obvgestion.application.audit.Journalisateur;
+import com.obvgestion.application.bar.TicketServeurRepository;
 import com.obvgestion.application.notification.Notification;
 import com.obvgestion.application.notification.NotificationService;
 import com.obvgestion.application.referentiel.PointDeVenteRepository;
 import com.obvgestion.application.stock.StockService;
 import com.obvgestion.application.utilisateur.UtilisateurRepository;
 import com.obvgestion.domain.audit.TypeActionJournal;
+import com.obvgestion.domain.bar.StatutTicketServeur;
+import com.obvgestion.domain.bar.TicketServeur;
 import com.obvgestion.domain.commun.Montant;
 import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.referentiel.PointDeVente;
@@ -38,6 +41,7 @@ public class SessionVenteService {
 
     private final SessionVenteRepository sessionVenteRepository;
     private final VenteRepository venteRepository;
+    private final TicketServeurRepository ticketServeurRepository;
     private final PointDeVenteRepository pointDeVenteRepository;
     private final UtilisateurRepository utilisateurRepository;
     private final StockService stockService;
@@ -45,11 +49,13 @@ public class SessionVenteService {
     private final NotificationService notificationService;
 
     public SessionVenteService(SessionVenteRepository sessionVenteRepository, VenteRepository venteRepository,
+                                TicketServeurRepository ticketServeurRepository,
                                 PointDeVenteRepository pointDeVenteRepository,
                                 UtilisateurRepository utilisateurRepository, StockService stockService,
                                 Journalisateur journalisateur, NotificationService notificationService) {
         this.sessionVenteRepository = sessionVenteRepository;
         this.venteRepository = venteRepository;
+        this.ticketServeurRepository = ticketServeurRepository;
         this.pointDeVenteRepository = pointDeVenteRepository;
         this.utilisateurRepository = utilisateurRepository;
         this.stockService = stockService;
@@ -77,14 +83,23 @@ public class SessionVenteService {
                         "Aucune session ouverte pour le point de vente " + pointDeVenteId));
     }
 
-    /** §8.3 — le total théorique est la somme des ventes enregistrées dans la session. */
+    /**
+     * §8.3/RG-34 — le total théorique est la somme des ventes (dépôt) ou des
+     * tickets encaissés (bar) enregistrés dans la session ; une session ne
+     * porte jamais les deux à la fois, l'une des deux sommes est donc
+     * toujours nulle.
+     */
     @Transactional
     public SessionVente cloturer(Long sessionId, Long acteurId, Montant totalCompte) {
         SessionVente session = trouver(sessionId);
-        Montant totalTheorique = venteRepository.parSession(sessionId).stream()
+        Montant totalVentes = venteRepository.parSession(sessionId).stream()
                 .map(Vente::getMontantTotal)
                 .reduce(Montant.zero(), Montant::plus);
-        session.cloturer(acteurId.toString(), totalTheorique, totalCompte, Instant.now());
+        Montant totalTickets = ticketServeurRepository.parSession(sessionId).stream()
+                .filter(t -> t.getStatut() == StatutTicketServeur.ENCAISSE)
+                .map(TicketServeur::getMontantTotal)
+                .reduce(Montant.zero(), Montant::plus);
+        session.cloturer(acteurId.toString(), totalVentes.plus(totalTickets), totalCompte, Instant.now());
         return sessionVenteRepository.enregistrer(session);
     }
 

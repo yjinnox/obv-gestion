@@ -2,6 +2,7 @@ package com.obvgestion.api.erreur;
 
 import com.obvgestion.domain.commun.RegleGestionException;
 import com.obvgestion.domain.commun.SeparationDesTachesException;
+import com.obvgestion.domain.bar.TicketServeurInvalideException;
 import com.obvgestion.domain.reception.ReceptionInvalideException;
 import com.obvgestion.domain.stock.StockInsuffisantException;
 import com.obvgestion.domain.transfert.TransfertInvalideException;
@@ -43,6 +44,7 @@ class GlobalExceptionHandler {
             case DernierSuperAdministrateurException ignored -> HttpStatus.CONFLICT;
             case ReceptionInvalideException ignored -> HttpStatus.CONFLICT;
             case TransfertInvalideException ignored -> HttpStatus.CONFLICT;
+            case TicketServeurInvalideException ignored -> HttpStatus.CONFLICT;
             case StockInsuffisantException ignored -> HttpStatus.CONFLICT;
             case SeparationDesTachesException ignored -> HttpStatus.FORBIDDEN;
             default -> HttpStatus.BAD_REQUEST;

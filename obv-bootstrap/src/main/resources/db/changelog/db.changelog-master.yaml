@@ -96,3 +96,12 @@ databaseChangeLog:
   - include:
       file: db/changelog/changes/0031-envers-p5.yaml
       relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0032-ticket-serveur.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0033-ligne-ticket-serveur.yaml
+      relativeToChangelogFile: false
+  - include:
+      file: db/changelog/changes/0034-envers-p6.yaml
+      relativeToChangelogFile: false
