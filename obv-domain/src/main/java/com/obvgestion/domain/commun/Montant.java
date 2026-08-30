@@ -23,4 +23,9 @@ public record Montant(long valeurXof) {
     public Montant multiplie(long facteur) {
         return new Montant(this.valeurXof * facteur);
     }
+
+    /** Applique un taux en pourcentage (ex. TVA), arrondi à l'entier le plus proche (H1 : jamais de décimale). */
+    public Montant pourcentage(int tauxPourcent) {
+        return new Montant(Math.round(this.valeurXof * tauxPourcent / 100.0));
+    }
 }

@@ -1,4 +1,7 @@
 package com.obvgestion.api.referentiel;
 
-public record ModifierProduitRequest(boolean actif) {
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+
+public record ModifierProduitRequest(@NotNull @PositiveOrZero Long montantConsigneXof, boolean actif) {
 }

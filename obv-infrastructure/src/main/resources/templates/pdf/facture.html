@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Facture</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #1B1B1B; }
+        h1 { font-size: 18px; margin-bottom: 4px; }
+        .entete { margin-bottom: 16px; }
+        .entreprise { font-size: 11px; color: #5a6056; margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { border: 1px solid #999999; padding: 6px 8px; text-align: left; }
+        th { background-color: #EFEFEF; }
+        td.montant, th.montant { text-align: right; }
+        .numero { font-size: 14px; font-weight: bold; }
+        .totaux { width: 320px; margin-left: auto; margin-top: 12px; }
+        .totaux td { border: none; padding: 2px 8px; }
+        .totaux tr.total td { font-weight: bold; border-top: 1px solid #1B1B1B; }
+    </style>
+</head>
+<body>
+<div class="entreprise">
+    <div th:text="${v.entrepriseRaisonSociale}">OBV Gestion</div>
+    <div th:text="${v.entrepriseAdresse}">Adresse</div>
+    <div>N° contribuable : <span th:text="${v.entrepriseNumeroContribuable}">CI-000000000</span></div>
+</div>
+<div class="entete">
+    <h1>Facture</h1>
+    <p class="numero" th:text="${v.numeroDocument}">FA-1-2026-000001</p>
+    <p>Point de vente : <span th:text="${v.pointDeVenteLibelle}">Dépôt central</span></p>
+    <p>Date : <span th:text="${v.dateHeure}">01/01/2026 08:00</span></p>
+    <p>Client : <span th:text="${v.clientNom}">Client</span></p>
+    <p th:if="${v.clientAdresse != null}">Adresse de facturation : <span th:text="${v.clientAdresse}">Adresse</span></p>
+    <p>Mode de paiement : <span th:text="${v.modePaiement}">ESPECES</span></p>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Marque</th>
+        <th>Volume</th>
+        <th class="montant">Quantité (demi-casiers)</th>
+        <th class="montant">PU casier (XOF)</th>
+        <th class="montant">Montant (XOF)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="ligne : ${v.lignes}">
+        <td th:text="${ligne.marqueLibelle}">Flag</td>
+        <td th:text="${ligne.volumeLibelle}">33 cl</td>
+        <td class="montant" th:text="${ligne.quantiteDemiCasiers}">2</td>
+        <td class="montant" th:text="${ligne.prixVenteCasierXof}">9500</td>
+        <td class="montant" th:text="${ligne.montantLigneXof}">9500</td>
+    </tr>
+    </tbody>
+</table>
+<table class="totaux">
+    <tr>
+        <td>Sous-total</td>
+        <td class="montant" th:text="${v.montantSousTotalXof}">9500</td>
+    </tr>
+    <tr>
+        <td th:text="'TVA (' + ${v.tauxTvaPourcent} + '%)'">TVA (18%)</td>
+        <td class="montant" th:text="${v.montantTvaXof}">1710</td>
+    </tr>
+    <tr>
+        <td>Consigne</td>
+        <td class="montant" th:text="${v.montantConsigneXof}">500</td>
+    </tr>
+    <tr class="total">
+        <td>Total à payer (XOF)</td>
+        <td class="montant" th:text="${v.montantTotalXof}">11710</td>
+    </tr>
+</table>
+</body>
+</html>

@@ -41,6 +41,13 @@ app:
   timezone: Africa/Abidjan
   frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
 
+# §20.5 — mentions fiscales de la facture (n° contribuable, TVA).
+entreprise:
+  raison-sociale: ${ENTREPRISE_RAISON_SOCIALE:OBV Gestion}
+  adresse: ${ENTREPRISE_ADRESSE:}
+  numero-contribuable: ${ENTREPRISE_NUMERO_CONTRIBUABLE:}
+  taux-tva-pourcent: ${ENTREPRISE_TAUX_TVA_POURCENT:18}
+
 security:
   jwt:
     secret: ${JWT_SECRET}

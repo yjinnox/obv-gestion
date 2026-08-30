@@ -1,0 +1,1 @@
+OBV Gestion : bonjour [(${prenoms})], la session de vente de [(${pointDeVente})] nécessite une correction avant validation.

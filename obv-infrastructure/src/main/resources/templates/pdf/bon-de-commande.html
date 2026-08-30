@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Bon de commande</title>
+    <style>
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 12px; color: #1B1B1B; }
+        h1 { font-size: 18px; margin-bottom: 4px; }
+        .entete { margin-bottom: 16px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        th, td { border: 1px solid #999999; padding: 6px 8px; text-align: left; }
+        th { background-color: #EFEFEF; }
+        .numero { font-size: 14px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="entete">
+    <h1>Bon de commande</h1>
+    <p class="numero" th:text="${v.numeroDocument}">BC-1-2026-000001</p>
+    <p>Point de vente : <span th:text="${v.pointDeVenteLibelle}">Dépôt central</span></p>
+    <p>Date : <span th:text="${v.dateHeure}">01/01/2026 08:00</span></p>
+    <p>Client : <span th:text="${v.clientNom}">Client</span></p>
+</div>
+<table>
+    <thead>
+    <tr>
+        <th>Marque</th>
+        <th>Volume</th>
+        <th>Quantité (demi-casiers)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="ligne : ${v.lignes}">
+        <td th:text="${ligne.marqueLibelle}">Flag</td>
+        <td th:text="${ligne.volumeLibelle}">33 cl</td>
+        <td th:text="${ligne.quantiteDemiCasiers}">2</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

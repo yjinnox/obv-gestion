@@ -1,5 +1,6 @@
 package com.obvgestion.application.referentiel;
 
+import com.obvgestion.domain.commun.Montant;
 import com.obvgestion.domain.referentiel.Marque;
 import com.obvgestion.domain.referentiel.Produit;
 import com.obvgestion.domain.referentiel.Volume;
@@ -34,8 +35,9 @@ public class ProduitService {
     }
 
     @Transactional
-    public Produit modifier(Long id, boolean actif) {
+    public Produit modifier(Long id, Montant montantConsigne, boolean actif) {
         Produit produit = trouver(id);
+        produit.setMontantConsigne(montantConsigne);
         produit.setActif(actif);
         return repository.enregistrer(produit);
     }

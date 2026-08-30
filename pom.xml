@@ -38,6 +38,7 @@
     <testcontainers.version>1.21.3</testcontainers.version>
     <spotbugs-maven-plugin.version>4.10.4.0</spotbugs-maven-plugin.version>
     <bouncycastle.version>1.85.2</bouncycastle.version>
+    <openhtmltopdf.version>1.1.73</openhtmltopdf.version>
   </properties>
 
   <dependencyManagement>

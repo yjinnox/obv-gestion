@@ -2,6 +2,7 @@ package com.obvgestion.api.referentiel;
 
 import com.obvgestion.api.PageResponse;
 import com.obvgestion.application.referentiel.ProduitService;
+import com.obvgestion.domain.commun.Montant;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -53,7 +54,8 @@ class ProduitController {
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('REFERENTIEL_WRITE')")
     ProduitResponse modifier(@PathVariable Long id, @Valid @RequestBody ModifierProduitRequest requete) {
-        return ProduitResponse.de(service.modifier(id, requete.actif()));
+        return ProduitResponse.de(
+                service.modifier(id, new Montant(requete.montantConsigneXof()), requete.actif()));
     }
 
     @DeleteMapping("/{id}")

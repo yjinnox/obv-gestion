@@ -1,6 +1,7 @@
 package com.obvgestion.domain.referentiel;
 
 import com.obvgestion.domain.audit.Auditable;
+import com.obvgestion.domain.commun.Montant;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,6 +30,14 @@ public class Produit extends Auditable {
     @JoinColumn(name = "volume_id", nullable = false)
     private Volume volume;
 
+    /**
+     * §20.2 — consigne du casier (vente au dépôt), non remboursable et non
+     * suivie en stock en v1 : montant fixe facturé par casier vendu,
+     * {@code 0} si ce produit n'est pas consigné.
+     */
+    @Column(name = "montant_consigne_xof", nullable = false)
+    private long montantConsigneXof;
+
     @Column(nullable = false)
     private boolean actif = true;
 
@@ -50,6 +59,14 @@ public class Produit extends Auditable {
 
     public Volume getVolume() {
         return volume;
+    }
+
+    public Montant getMontantConsigne() {
+        return new Montant(montantConsigneXof);
+    }
+
+    public void setMontantConsigne(Montant montantConsigne) {
+        this.montantConsigneXof = montantConsigne.valeurXof();
     }
 
     public boolean isActif() {

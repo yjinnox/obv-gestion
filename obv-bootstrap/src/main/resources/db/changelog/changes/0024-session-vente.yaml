@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-session-vente
+      author: obv-gestion
+      comment: "§8.1 — session de vente au dépôt (RG-23, RG-28, RG-29)."
+      changes:
+        - createTable:
+            tableName: session_vente
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: point_de_vente_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_session_vente_point_de_vente, references: "point_de_vente(id)"}}
+              - column: {name: date_ouverture, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: ouverte_par, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: fond_caisse_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: statut, type: VARCHAR(20), constraints: {nullable: false}}
+              - column: {name: date_cloture, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: cloturee_par, type: VARCHAR(255)}
+              - column: {name: total_theorique_xof, type: BIGINT}
+              - column: {name: total_compte_xof, type: BIGINT}
+              - column: {name: ecart_xof, type: BIGINT}
+              - column: {name: date_validation, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: validee_par, type: VARCHAR(255)}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - sql:
+            comment: "RG-23 — une seule session OUVERTE par point de vente à la fois."
+            sql: >
+              CREATE UNIQUE INDEX uk_session_vente_ouverte
+              ON session_vente (point_de_vente_id)
+              WHERE statut = 'OUVERTE'

@@ -13,6 +13,7 @@ import com.obvgestion.application.utilisateur.UtilisateurRepository;
 import com.obvgestion.domain.audit.TypeActionJournal;
 import com.obvgestion.domain.commun.JetonOpaque;
 import com.obvgestion.domain.commun.Montant;
+import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.reception.JetonValidationReception;
 import com.obvgestion.domain.reception.LigneReception;
 import com.obvgestion.domain.reception.Reception;
@@ -25,6 +26,7 @@ import com.obvgestion.domain.referentiel.PointDeVente;
 import com.obvgestion.domain.referentiel.Produit;
 import com.obvgestion.domain.referentiel.UniteVente;
 import com.obvgestion.domain.stock.TypeMouvementStock;
+import com.obvgestion.domain.utilisateur.Permission;
 import com.obvgestion.domain.utilisateur.RoleUtilisateur;
 import com.obvgestion.domain.utilisateur.Utilisateur;
 import org.springframework.beans.factory.annotation.Value;
@@ -127,13 +129,21 @@ public class ReceptionService {
      * RG-20 — modifier une ligne d'une réception déjà en attente de
      * validation ajuste le stock (déjà incrémenté à la clôture, RG-17) de
      * l'écart et journalise la correction ; en brouillon, la ligne n'a pas
-     * encore d'impact sur le stock.
+     * encore d'impact sur le stock. RG-20 réserve cette correction au
+     * SUPER_ADMINISTRATEUR ({@code MODIFICATION_POST_CLOTURE}) : une fois la
+     * réception clôturée, {@code RECEPTION_WRITE} seul (détenu par le
+     * gérant qui l'a préparée) ne suffit plus.
      */
     @Transactional
     public void modifierLigne(Long receptionId, Long ligneId, long nombreCasiers, Montant prixAchatCasier,
                                Long acteurId, String adresseIp) {
         Reception reception = trouver(receptionId);
         boolean stockDejaImpacte = reception.getStatut() == StatutReception.EN_ATTENTE_VALIDATION;
+        Utilisateur acteur = utilisateur(acteurId);
+        if (stockDejaImpacte && !acteur.permissions().contains(Permission.MODIFICATION_POST_CLOTURE)) {
+            throw new SeparationDesTachesException(
+                    "Seul un SUPER_ADMINISTRATEUR peut modifier une réception déjà en attente de validation.");
+        }
         LigneReception ligne = ligneDe(reception, ligneId);
         long demiCasiersAvant = ligne.quantiteDemiCasiers();
         String descriptionAvant = decrireLigne(ligne);
@@ -143,7 +153,6 @@ public class ReceptionService {
 
         if (stockDejaImpacte) {
             long delta = ligne.quantiteDemiCasiers() - demiCasiersAvant;
-            Utilisateur acteur = utilisateur(acteurId);
             if (delta != 0) {
                 stockService.appliquer(reception.getPointDeVente(), ligne.getProduit(), TypeMouvementStock.AJUSTEMENT,
                         delta, TYPE_DOCUMENT, reception.getId(), acteur);

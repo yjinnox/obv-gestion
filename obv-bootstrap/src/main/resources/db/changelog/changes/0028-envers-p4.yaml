@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0028-envers-p4
+      author: obv-gestion
+      comment: >
+        §12 — Hibernate Envers étendu à SessionVente, Vente et LigneVente.
+        revinfo/revinfo_seq existent déjà (0008-envers-audit).
+      changes:
+        - createTable:
+            tableName: session_vente_aud
+            columns:
+              - column: {name: id, type: BIGINT, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: rev, type: INT, constraints: {primaryKey: true, nullable: false, foreignKeyName: fk_session_vente_aud_revinfo, references: "revinfo(rev)"}}
+              - column: {name: revtype, type: SMALLINT}
+              - column: {name: point_de_vente_id, type: BIGINT}
+              - column: {name: date_ouverture, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: ouverte_par, type: VARCHAR(255)}
+              - column: {name: fond_caisse_xof, type: BIGINT}
+              - column: {name: statut, type: VARCHAR(20)}
+              - column: {name: date_cloture, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: cloturee_par, type: VARCHAR(255)}
+              - column: {name: total_theorique_xof, type: BIGINT}
+              - column: {name: total_compte_xof, type: BIGINT}
+              - column: {name: ecart_xof, type: BIGINT}
+              - column: {name: date_validation, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: validee_par, type: VARCHAR(255)}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - createTable:
+            tableName: vente_aud
+            columns:
+              - column: {name: id, type: BIGINT, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: rev, type: INT, constraints: {primaryKey: true, nullable: false, foreignKeyName: fk_vente_aud_revinfo, references: "revinfo(rev)"}}
+              - column: {name: revtype, type: SMALLINT}
+              - column: {name: session_vente_id, type: BIGINT}
+              - column: {name: client_id, type: BIGINT}
+              - column: {name: numero_bon_commande, type: VARCHAR(50)}
+              - column: {name: numero_facture, type: VARCHAR(50)}
+              - column: {name: mode_paiement, type: VARCHAR(20)}
+              - column: {name: montant_sous_total_xof, type: BIGINT}
+              - column: {name: montant_consigne_xof, type: BIGINT}
+              - column: {name: montant_tva_xof, type: BIGINT}
+              - column: {name: montant_total_xof, type: BIGINT}
+              - column: {name: idempotency_key, type: VARCHAR(255)}
+              - column: {name: date_heure, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - createTable:
+            tableName: ligne_vente_aud
+            columns:
+              - column: {name: id, type: BIGINT, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: rev, type: INT, constraints: {primaryKey: true, nullable: false, foreignKeyName: fk_ligne_vente_aud_revinfo, references: "revinfo(rev)"}}
+              - column: {name: revtype, type: SMALLINT}
+              - column: {name: vente_id, type: BIGINT}
+              - column: {name: produit_id, type: BIGINT}
+              - column: {name: quantite_demi_casiers, type: BIGINT}
+              - column: {name: prix_vente_casier_xof, type: BIGINT}
+              - column: {name: montant_consigne_casier_xof, type: BIGINT}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE}
+              - column: {name: updated_by, type: VARCHAR(255)}

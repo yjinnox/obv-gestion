@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-vente
+      author: obv-gestion
+      comment: "§8.2 — vente au dépôt (appelée « commande » côté API/IHM), RG-24 à RG-27."
+      changes:
+        - createTable:
+            tableName: vente
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: session_vente_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_vente_session_vente, references: "session_vente(id)"}}
+              - column: {name: client_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_vente_client, references: "client(id)"}}
+              - column: {name: numero_bon_commande, type: VARCHAR(50), constraints: {nullable: false, unique: true, uniqueConstraintName: uk_vente_numero_bon_commande}}
+              - column: {name: numero_facture, type: VARCHAR(50), constraints: {nullable: false, unique: true, uniqueConstraintName: uk_vente_numero_facture}}
+              - column: {name: mode_paiement, type: VARCHAR(20), constraints: {nullable: false}}
+              - column: {name: montant_sous_total_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: montant_consigne_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: montant_tva_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: montant_total_xof, type: BIGINT, constraints: {nullable: false}}
+              - column: {name: idempotency_key, type: VARCHAR(255), constraints: {nullable: false}}
+              - column: {name: date_heure, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: created_by, type: VARCHAR(255)}
+              - column: {name: updated_at, type: TIMESTAMP WITH TIME ZONE, constraints: {nullable: false}}
+              - column: {name: updated_by, type: VARCHAR(255)}
+        - addUniqueConstraint:
+            tableName: vente
+            columnNames: session_vente_id, idempotency_key
+            constraintName: uk_vente_session_idempotency_key
+        - createIndex:
+            tableName: vente
+            indexName: ix_vente_session
+            columns:
+              - column: {name: session_vente_id}

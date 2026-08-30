@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027-compteur-document
+      author: obv-gestion
+      comment: "RG-26 — compteur de numérotation BC-{PDV}-{AAAA}-{séquence} / FA-{PDV}-{AAAA}-{séquence}."
+      changes:
+        - createTable:
+            tableName: compteur_document
+            columns:
+              - column: {name: id, type: BIGINT, autoIncrement: true, constraints: {primaryKey: true, nullable: false}}
+              - column: {name: point_de_vente_id, type: BIGINT, constraints: {nullable: false, foreignKeyName: fk_compteur_document_point_de_vente, references: "point_de_vente(id)"}}
+              - column: {name: type, type: VARCHAR(20), constraints: {nullable: false}}
+              - column: {name: annee, type: INT, constraints: {nullable: false}}
+              - column: {name: dernier_numero, type: BIGINT, constraints: {nullable: false}}
+        - addUniqueConstraint:
+            tableName: compteur_document
+            columnNames: point_de_vente_id, type, annee
+            constraintName: uk_compteur_document_cle

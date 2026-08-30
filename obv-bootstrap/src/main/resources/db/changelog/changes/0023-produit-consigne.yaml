@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023-produit-consigne
+      author: obv-gestion
+      comment: "§20.2 — consigne du casier (vente au dépôt), non remboursable, non suivie en stock."
+      changes:
+        - addColumn:
+            tableName: produit
+            columns:
+              - column: {name: montant_consigne_xof, type: BIGINT, defaultValueNumeric: 0, constraints: {nullable: false}}
