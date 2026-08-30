@@ -20,6 +20,12 @@ export const LIBELLES_STATUT_UTILISATEUR: Record<StatutUtilisateur, string> = {
 /** Rôles nécessitant un point de vente (voir RoleUtilisateur.Portee côté domaine). */
 export const ROLES_AVEC_POINT_DE_VENTE: RoleUtilisateur[] = ['GERANT_DEPOT', 'GERANT_BAR', 'VENDEUR'];
 
+/** Type de point de vente imposé par rôle (voir RoleUtilisateur.typePointDeVenteRequis côté domaine). */
+export const TYPE_POINT_DE_VENTE_REQUIS: Partial<Record<RoleUtilisateur, 'DEPOT' | 'BAR'>> = {
+  GERANT_DEPOT: 'DEPOT',
+  GERANT_BAR: 'BAR',
+};
+
 export interface AffectationResponse {
   id: number;
   role: RoleUtilisateur;

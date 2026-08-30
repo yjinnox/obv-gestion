@@ -1,0 +1,90 @@
+:host {
+  display: block;
+}
+
+.page__titre {
+  margin: 0 0 16px;
+}
+
+.filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+
+  &__champ {
+    min-width: 180px;
+  }
+}
+
+.creation {
+  background-color: var(--surface);
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+
+  &__erreur {
+    color: var(--erreur);
+    margin: 0 0 12px;
+  }
+
+  &__champs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  &__sous-titre {
+    margin: 16px 0 8px;
+    font-size: 1rem;
+  }
+
+  &__affectations-liste {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  &__ajout-affectation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  &__champ-role {
+    min-width: 180px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+}
+
+.liste__table {
+  width: 100%;
+  background-color: var(--surface);
+}
+
+.detail-row {
+  height: 0;
+}
+
+.detail-cell {
+  padding: 12px 16px !important;
+  background-color: var(--fond);
+}
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  mat-chip-row {
+    margin-right: 8px;
+  }
+}

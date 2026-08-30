@@ -94,6 +94,13 @@ export const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'utilisateurs',
+        canActivate: [permissionGuard],
+        data: { permission: 'UTILISATEUR_READ' },
+        loadComponent: () =>
+          import('./features/utilisateurs/utilisateurs.component').then((m) => m.UtilisateursComponent),
+      },
     ],
   },
   { path: '**', redirectTo: 'tableau-de-bord' },
