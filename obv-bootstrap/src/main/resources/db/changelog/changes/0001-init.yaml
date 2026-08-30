@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001-init
+      author: obv-gestion
+      comment: >
+        Amorce du changelog Liquibase (P0). Ne crée aucun schéma métier :
+        les tables du référentiel et du domaine sont introduites en P1/P2.
+      changes:
+        - tagDatabase:
+            tag: P0-squelette

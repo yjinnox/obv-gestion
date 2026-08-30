@@ -1,0 +1,23 @@
+# Maven
+target/
+*.class
+
+# Logs
+*.log
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environnement local (secrets)
+.env
+.env.*
+!.env.example

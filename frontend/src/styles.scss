@@ -1,0 +1,41 @@
+// Thème Angular Material (Material 3) généré à partir de la charte
+// graphique OBV Gestion (cf. spécification §15.4) et variables CSS brutes
+// utilisées directement par les composants applicatifs.
+@use '@angular/material' as mat;
+@use './styles/theme-colors' as theme;
+
+:root {
+  --vert-primaire: #096a09; // barres, en-têtes, actions principales
+  --vert-accent: #1fa055; // succès, validations, états positifs
+  --orange-primaire: #df6d14; // actions secondaires, alertes douces
+  --orange-fonce: #cc5500; // survol/appui de l'orange, avertissements
+  --fond: #efefef; // fond d'application
+  --surface: #ffffff; // cartes, tableaux
+  --texte: #1b1b1b;
+  --texte-inverse: #ffffff;
+  --erreur: #b3261e; // réservé aux actions destructrices (annulation, suppression)
+}
+
+html {
+  height: 100%;
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: theme.$primary-palette,
+        tertiary: theme.$tertiary-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  background-color: var(--fond);
+  color: var(--texte);
+  font: var(--mat-sys-body-medium);
+}

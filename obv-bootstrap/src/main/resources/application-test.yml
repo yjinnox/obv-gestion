@@ -1,0 +1,8 @@
+spring:
+  liquibase:
+    enabled: true
+
+logging:
+  level:
+    com.obvgestion: INFO
+    org.testcontainers: INFO
