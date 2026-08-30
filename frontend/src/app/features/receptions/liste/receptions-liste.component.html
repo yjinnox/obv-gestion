@@ -1,0 +1,80 @@
+<h1 class="page__titre">Réceptions</h1>
+
+<div class="filtres">
+  <mat-form-field appearance="outline" class="filtres__champ">
+    <mat-label>Statut</mat-label>
+    <mat-select [value]="filtreStatut()" (selectionChange)="filtreStatut.set($event.value)">
+      <mat-option [value]="null">Tous</mat-option>
+      @for (statut of ['BROUILLON', 'EN_ATTENTE_VALIDATION', 'VALIDEE', 'ANNULEE']; track statut) {
+        <mat-option [value]="statut">{{ libellesStatut[statut] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  @if (auth.aLaPermission('RECEPTION_WRITE')) {
+    <button mat-flat-button color="primary" (click)="afficherCreation.set(!afficherCreation())">
+      {{ afficherCreation() ? 'Fermer' : 'Nouvelle réception' }}
+    </button>
+  }
+</div>
+
+@if (afficherCreation()) {
+  <form (submit)="onSubmit($event)" class="creation" novalidate>
+    @if (formulaire().errors().length > 0) {
+      <p class="creation__erreur" role="alert">{{ formulaire().errors()[0].message }}</p>
+    }
+    <div class="creation__champs">
+      <mat-form-field appearance="outline">
+        <mat-label>Fournisseur</mat-label>
+        <mat-select [formField]="formulaire.fournisseurId">
+          @for (f of fournisseurs.value()?.content ?? []; track f.id) {
+            <mat-option [value]="f.id">{{ f.raisonSociale }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Point de vente (dépôt)</mat-label>
+        <mat-select [formField]="formulaire.pointDeVenteId">
+          @for (p of pointsDeVenteDepot(); track p.id) {
+            <mat-option [value]="p.id">{{ p.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Date/heure de livraison</mat-label>
+        <input matInput type="datetime-local" [formField]="formulaire.dateHeureLivraison" />
+      </mat-form-field>
+    </div>
+    <button mat-flat-button color="primary" type="submit" [disabled]="enCours()">Créer</button>
+  </form>
+}
+
+@if (receptions.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="receptions.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="fournisseur">
+      <th mat-header-cell *matHeaderCellDef>Fournisseur</th>
+      <td mat-cell *matCellDef="let r">{{ r.fournisseurRaisonSociale }}</td>
+    </ng-container>
+    <ng-container matColumnDef="pointDeVente">
+      <th mat-header-cell *matHeaderCellDef>Point de vente</th>
+      <td mat-cell *matCellDef="let r">{{ r.pointDeVenteLibelle }}</td>
+    </ng-container>
+    <ng-container matColumnDef="dateHeureLivraison">
+      <th mat-header-cell *matHeaderCellDef>Livraison</th>
+      <td mat-cell *matCellDef="let r">{{ r.dateHeureLivraison | date: 'dd/MM/yyyy HH:mm' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="statut">
+      <th mat-header-cell *matHeaderCellDef>Statut</th>
+      <td mat-cell *matCellDef="let r">
+        <mat-chip-set><mat-chip>{{ libellesStatut[r.statut] }}</mat-chip></mat-chip-set>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="montantTotalXof">
+      <th mat-header-cell *matHeaderCellDef>Montant</th>
+      <td mat-cell *matCellDef="let r">{{ r.montantTotalXof | xof }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes" (click)="ouvrir(row.id)" class="liste__ligne-cliquable"></tr>
+  </table>
+}

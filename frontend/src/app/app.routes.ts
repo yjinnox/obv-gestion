@@ -101,6 +101,24 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/utilisateurs/utilisateurs.component').then((m) => m.UtilisateursComponent),
       },
+      {
+        path: 'receptions',
+        canActivate: [permissionGuard],
+        data: { permission: 'RECEPTION_READ' },
+        loadComponent: () =>
+          import('./features/receptions/liste/receptions-liste.component').then(
+            (m) => m.ReceptionsListeComponent,
+          ),
+      },
+      {
+        path: 'receptions/:id',
+        canActivate: [permissionGuard],
+        data: { permission: 'RECEPTION_READ' },
+        loadComponent: () =>
+          import('./features/receptions/detail/reception-detail.component').then(
+            (m) => m.ReceptionDetailComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: 'tableau-de-bord' },

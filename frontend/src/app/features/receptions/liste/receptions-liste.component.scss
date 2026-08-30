@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+
+.page__titre {
+  margin: 0 0 16px;
+}
+
+.filtres {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+
+  &__champ {
+    min-width: 220px;
+  }
+}
+
+.creation {
+  background-color: var(--surface);
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+
+  &__erreur {
+    color: var(--erreur);
+    margin: 0 0 12px;
+  }
+
+  &__champs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+}
+
+.liste__table {
+  width: 100%;
+  background-color: var(--surface);
+}
+
+.liste__ligne-cliquable {
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--fond);
+  }
+}

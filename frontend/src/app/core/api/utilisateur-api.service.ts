@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Pageable, PageResponse, versParams } from './pagination';
@@ -20,8 +20,12 @@ export class UtilisateurApiService {
   lister(
     filtres?: { statut?: StatutUtilisateur; role?: RoleUtilisateur; pdv?: number; recherche?: string },
     pageable?: Pageable,
+    context?: HttpContext,
   ): Observable<PageResponse<UtilisateurResponse>> {
-    return this.http.get<PageResponse<UtilisateurResponse>>(this.base, { params: versParams(pageable, filtres) });
+    return this.http.get<PageResponse<UtilisateurResponse>>(this.base, {
+      params: versParams(pageable, filtres),
+      context,
+    });
   }
 
   creer(requete: CreerUtilisateurRequest): Observable<UtilisateurResponse> {
