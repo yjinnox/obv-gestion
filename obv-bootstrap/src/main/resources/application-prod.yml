@@ -22,3 +22,11 @@ management:
   endpoint:
     health:
       show-details: never
+
+# §16.2 (durcissement) — la documentation OpenAPI/Swagger ne doit pas être
+# exposée publiquement en production.
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

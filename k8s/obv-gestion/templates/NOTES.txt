@@ -1,0 +1,28 @@
+OBV Gestion est déployé ({{ .Release.Name }}, namespace {{ .Release.Namespace }}).
+
+{{- if .Values.ingress.enabled }}
+
+Application accessible via :
+{{- if .Values.ingress.tls.enabled }}
+  https://{{ .Values.ingress.host }}
+{{- else }}
+  http://{{ .Values.ingress.host }}
+{{- end }}
+{{- else }}
+
+Ingress désactivé (ingress.enabled=false) : exposer le Service
+{{ .Values.frontend.serviceName }} par un autre moyen (port-forward,
+LoadBalancer...).
+{{- end }}
+
+Vérifier le déploiement :
+  kubectl -n {{ .Release.Namespace }} get pods,svc,ingress,hpa,pdb -l app.kubernetes.io/part-of={{ include "obv-gestion.name" . }}
+
+Suivre le démarrage du backend :
+  kubectl -n {{ .Release.Namespace }} logs -l app.kubernetes.io/component=backend -f
+
+Rappel : PostgreSQL et Redis sont des dépendances externes (§16.2, non
+déployées par ce chart) — vérifier que config.dbUrl/redisHost et les
+secrets associés (secrets.dbUser, secrets.dbPassword, secrets.redisPassword)
+pointent vers des instances déjà provisionnées et accessibles depuis ce
+cluster/namespace.

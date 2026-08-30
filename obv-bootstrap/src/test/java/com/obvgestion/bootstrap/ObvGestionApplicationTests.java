@@ -3,7 +3,7 @@ package com.obvgestion.bootstrap;
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -50,14 +50,14 @@ class ObvGestionApplicationTests {
         registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
     }
 
-    @LocalServerPort
-    private int port;
+    @LocalManagementPort
+    private int managementPort;
 
     @Test
     void leContexteDemarreEtLaSanteEstDisponible() throws Exception {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:" + port + "/actuator/health"))
+                .uri(URI.create("http://localhost:" + managementPort + "/actuator/health"))
                 .GET()
                 .build();
 

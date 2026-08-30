@@ -1,0 +1,170 @@
+# Valeurs par défaut du chart OBV Gestion (§16.2).
+# PostgreSQL et Redis sont des dépendances externes (non déployées ici) :
+# renseigner leurs coordonnées sous `config`/`secrets` ci-dessous.
+
+nameOverride: ""
+
+imagePullSecrets: []
+
+backend:
+  image:
+    # ghcr.io/<owner>/<repo>/backend, poussée par la CI (.github/workflows/ci.yml)
+    repository: ghcr.io/CHANGEME/obv-gestion/backend
+    tag: ""   # défaut : .Chart.AppVersion
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  # Doit rester "backend" : nginx.conf du frontend proxie /api/ en dur vers
+  # ce nom de Service (même convention que le service `backend` de
+  # docker-compose.yml) — le renommer suppose de retempliariser l'image
+  # frontend.
+  serviceName: backend
+  containerPort: 8080
+  managementPort: 8081
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  # Probes alignées sur management.server.port (§16.2) : Actuator ne vit
+  # jamais sur le port applicatif public.
+  probes:
+    liveness:
+      path: /actuator/health/liveness
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      failureThreshold: 6
+    readiness:
+      path: /actuator/health/readiness
+      initialDelaySeconds: 15
+      periodSeconds: 10
+      failureThreshold: 6
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+
+  # Répertoires accessibles en écriture malgré readOnlyRootFilesystem
+  # (JVM tmp, cache de fontes du moteur PDF openhtmltopdf).
+  writableVolumes:
+    - name: tmp
+      mountPath: /tmp
+    - name: fontconfig-cache
+      mountPath: /var/cache/fontconfig
+
+frontend:
+  image:
+    repository: ghcr.io/CHANGEME/obv-gestion/frontend
+    tag: ""
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+  serviceName: frontend
+  containerPort: 8080
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 101   # utilisateur nginx de l'image nginx:alpine
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop: ["ALL"]
+
+  writableVolumes:
+    - name: nginx-cache
+      mountPath: /var/cache/nginx
+    - name: nginx-run
+      mountPath: /var/run
+    - name: nginx-tmp
+      mountPath: /tmp
+
+ingress:
+  enabled: true
+  className: nginx
+  host: obv-gestion.example.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  tls:
+    enabled: true
+    secretName: obv-gestion-tls
+
+# Variables non sensibles (§14.3 : app.yml par profil, secrets uniquement
+# par variable d'environnement) — deviennent le ConfigMap.
+config:
+  springProfilesActive: prod
+  appTimezone: Africa/Abidjan
+  appFrontendUrl: https://obv-gestion.example.com
+  corsAllowedOrigins: https://obv-gestion.example.com
+  # URL JDBC complète (le profil prod attend DB_URL, pas host/port/nom
+  # séparés — voir application-prod.yml).
+  dbUrl: jdbc:postgresql://postgres.example.internal:5432/obv_gestion
+  redisHost: redis.example.internal
+  redisPort: "6379"
+  mailHost: smtp.example.internal
+  mailPort: "587"
+  notificationMode: real
+  notificationEmailFrom: no-reply@obv-gestion.example.com
+  smsProvider: log
+  entrepriseRaisonSociale: OBV Gestion
+  entrepriseAdresse: ""
+  entrepriseNumeroContribuable: ""
+  entrepriseTauxTvaPourcent: "18"
+  otelExporterOtlpEndpoint: ""
+  tracingSamplingProbability: "0.1"
+
+# Variables sensibles (§14.3) — jamais de valeur en clair committée ici :
+# fournir un fichier values séparé non versionné ou --set/--set-file à
+# l'installation (`helm install -f secrets.values.yaml`, ou un Secret
+# géré hors chart via `secrets.create: false`).
+secrets:
+  create: true
+  dbUser: ""
+  dbPassword: ""
+  redisPassword: ""
+  jwtSecret: ""
+  mailUser: ""
+  mailPassword: ""
+  twilioAccountSid: ""
+  twilioAuthToken: ""
+  twilioFromNumber: ""
+  orangeClientId: ""
+  orangeClientSecret: ""
+  orangeSenderAddress: ""
+  bootstrapAdminNom: ""
+  bootstrapAdminPrenoms: ""
+  bootstrapAdminCanal: EMAIL
+  bootstrapAdminEmail: ""
+  bootstrapAdminTelephone: ""
+  # Nom d'un Secret existant à utiliser à la place (create: false).
+  existingSecretName: ""

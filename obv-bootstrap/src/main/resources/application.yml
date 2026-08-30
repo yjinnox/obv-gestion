@@ -20,8 +20,22 @@ spring:
 
 server:
   port: 8080
+  # §16.2 (durcissement) — derrière un reverse proxy de confiance (nginx en
+  # dev, Ingress en k8s) : getRemoteAddr()/X-Forwarded-* sont résolus par le
+  # framework, pour une adresse IP fiable dans l'audit (§12) et le
+  # rate limiting, plutôt qu'un parsing manuel non fiable des en-têtes.
+  forward-headers-strategy: framework
 
+# §16.2 (durcissement) — l'observabilité (Actuator, Prometheus) vit sur un
+# port distinct de l'API publique : ce port n'est jamais exposé par
+# l'Ingress, seulement atteignable depuis l'intérieur du cluster
+# (kubelet pour les probes, Prometheus pour le scraping). Spring Boot
+# héberge alors Actuator dans un contexte Web séparé, hors de la chaîne
+# de filtres Spring Security de l'API — l'isolation réseau tient lieu
+# d'authentification pour ce plan opérationnel.
 management:
+  server:
+    port: 8081
   endpoints:
     web:
       exposure:
@@ -36,10 +50,19 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:0.1}
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
 
 app:
   timezone: Africa/Abidjan
   frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
+  # §16.2 (durcissement) — liste (séparée par des virgules) des origines
+  # CORS autorisées ; jamais de joker (voir SecurityConfig).
+  cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:${app.frontend-url}}
 
 # §20.5 — mentions fiscales de la facture (n° contribuable, TVA).
 entreprise:

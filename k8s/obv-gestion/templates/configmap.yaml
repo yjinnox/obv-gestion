@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "obv-gestion.fullname" . }}-config
+  labels:
+    {{- include "obv-gestion.backend.labels" . | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.config.springProfilesActive | quote }}
+  APP_TIMEZONE: {{ .Values.config.appTimezone | quote }}
+  APP_FRONTEND_URL: {{ .Values.config.appFrontendUrl | quote }}
+  CORS_ALLOWED_ORIGINS: {{ .Values.config.corsAllowedOrigins | quote }}
+  DB_URL: {{ .Values.config.dbUrl | quote }}
+  REDIS_HOST: {{ .Values.config.redisHost | quote }}
+  REDIS_PORT: {{ .Values.config.redisPort | quote }}
+  MAIL_HOST: {{ .Values.config.mailHost | quote }}
+  MAIL_PORT: {{ .Values.config.mailPort | quote }}
+  NOTIFICATION_MODE: {{ .Values.config.notificationMode | quote }}
+  NOTIFICATION_EMAIL_FROM: {{ .Values.config.notificationEmailFrom | quote }}
+  SMS_PROVIDER: {{ .Values.config.smsProvider | quote }}
+  ENTREPRISE_RAISON_SOCIALE: {{ .Values.config.entrepriseRaisonSociale | quote }}
+  ENTREPRISE_ADRESSE: {{ .Values.config.entrepriseAdresse | quote }}
+  ENTREPRISE_NUMERO_CONTRIBUABLE: {{ .Values.config.entrepriseNumeroContribuable | quote }}
+  ENTREPRISE_TAUX_TVA_POURCENT: {{ .Values.config.entrepriseTauxTvaPourcent | quote }}
+  OTEL_EXPORTER_OTLP_ENDPOINT: {{ .Values.config.otelExporterOtlpEndpoint | quote }}
+  TRACING_SAMPLING_PROBABILITY: {{ .Values.config.tracingSamplingProbability | quote }}

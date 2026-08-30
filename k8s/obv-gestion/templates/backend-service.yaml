@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.backend.serviceName }}
+  labels:
+    {{- include "obv-gestion.backend.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "obv-gestion.backend.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.backend.containerPort }}
+      targetPort: http
+    - name: management
+      port: {{ .Values.backend.managementPort }}
+      targetPort: management

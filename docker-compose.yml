@@ -61,6 +61,7 @@ services:
       BOOTSTRAP_ADMIN_EMAIL: admin@obv-gestion.local
     ports:
       - "8080:8080"
+      - "8081:8081"
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,7 +70,7 @@ services:
       mailhog:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health/readiness"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health/readiness"]
       interval: 10s
       timeout: 5s
       start_period: 60s
@@ -80,12 +81,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "4200:80"
+      - "4200:8080"
     depends_on:
       backend:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "-q", "-O-", "http://localhost/"]
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8080/"]
       interval: 10s
       timeout: 5s
       start_period: 15s

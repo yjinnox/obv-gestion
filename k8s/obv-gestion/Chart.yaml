@@ -1,0 +1,15 @@
+apiVersion: v2
+name: obv-gestion
+description: >-
+  Gestion de dépôt et bars/maquis (OBV Gestion) — backend Spring Boot et
+  frontend Angular. PostgreSQL et Redis sont des dépendances externes,
+  non déployées par ce chart (§16.2).
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+keywords:
+  - obv-gestion
+  - depot
+  - bar
+maintainers:
+  - name: OBV Gestion

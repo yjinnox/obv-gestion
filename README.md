@@ -36,7 +36,7 @@ docker compose up --build
 
 - Frontend : http://localhost:4200
 - API backend : http://localhost:8080/api/v1 (documentation OpenAPI : `/swagger-ui.html`)
-- Actuator : http://localhost:8080/actuator/health
+- Actuator (santé, métriques Prometheus, traces) : http://localhost:8081/actuator/health — port distinct de l'API publique (§16.2)
 - MailHog (emails de test) : http://localhost:8025
 
 Le `docker-compose.yml` amorce automatiquement un premier `SUPER_ADMINISTRATEUR`
@@ -65,3 +65,26 @@ npm test    # tests unitaires Vitest
 ```
 
 Nécessite Node ≥ 22.22.3.
+
+## Déploiement Kubernetes
+
+Chart Helm sous [`k8s/obv-gestion`](k8s/obv-gestion) (§16.2) : `Deployment`/
+`Service`/`HorizontalPodAutoscaler`/`PodDisruptionBudget` pour le backend,
+`Deployment`/`Service` pour le frontend, `Ingress` (TLS), `ConfigMap` et
+`Secret`. PostgreSQL et Redis sont des dépendances externes, non déployées
+par ce chart.
+
+```bash
+helm lint k8s/obv-gestion
+helm install obv-gestion k8s/obv-gestion \
+  --namespace obv-gestion --create-namespace \
+  --set backend.image.repository=ghcr.io/<owner>/<repo>/backend \
+  --set frontend.image.repository=ghcr.io/<owner>/<repo>/frontend \
+  --set backend.image.tag=<sha-ou-tag> \
+  --set frontend.image.tag=<sha-ou-tag> \
+  -f mes-valeurs-secretes.yaml   # jamais de secret en clair committé (§14.3)
+```
+
+Voir les commentaires de [`values.yaml`](k8s/obv-gestion/values.yaml) pour
+le détail de chaque option (dont `secrets.existingSecretName` si les
+identifiants sont gérés hors chart, par ex. via un opérateur de secrets).

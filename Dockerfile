@@ -24,13 +24,13 @@ RUN --mount=type=cache,target=/root/.m2 \
 # --- Stage 2 : runtime JRE 25 minimal, utilisateur non-root ---
 FROM eclipse-temurin:25-jre-alpine AS runtime
 RUN apk add --no-cache curl \
-    && addgroup -S obv && adduser -S obv -G obv
+    && addgroup -S -g 1000 obv && adduser -S -u 1000 obv -G obv
 WORKDIR /app
 COPY --from=build /workspace/obv-bootstrap/target/obv-gestion.jar app.jar
 USER obv
 
-EXPOSE 8080
+EXPOSE 8080 8081
 HEALTHCHECK --interval=10s --timeout=5s --start-period=40s --retries=5 \
-    CMD curl -f http://localhost:8080/actuator/health/readiness || exit 1
+    CMD curl -f http://localhost:8081/actuator/health/readiness || exit 1
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
