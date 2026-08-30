@@ -124,6 +124,24 @@ export const routes: Routes = [
           import('./features/sessions-vente/session-detail.component').then((m) => m.SessionDetailComponent),
       },
       {
+        path: 'transferts',
+        canActivate: [permissionGuard],
+        data: { permission: 'TRANSFERT_WRITE' },
+        loadComponent: () =>
+          import('./features/transferts/liste/transferts-liste.component').then(
+            (m) => m.TransfertsListeComponent,
+          ),
+      },
+      {
+        path: 'transferts/:id',
+        canActivate: [permissionGuard],
+        data: { permission: 'TRANSFERT_WRITE' },
+        loadComponent: () =>
+          import('./features/transferts/detail/transfert-detail.component').then(
+            (m) => m.TransfertDetailComponent,
+          ),
+      },
+      {
         path: 'receptions/:id',
         canActivate: [permissionGuard],
         data: { permission: 'RECEPTION_READ' },

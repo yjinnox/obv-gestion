@@ -1,0 +1,135 @@
+<h1 class="page__titre">Transferts</h1>
+
+<div class="filtres">
+  <mat-form-field appearance="outline" class="filtres__champ">
+    <mat-label>Statut</mat-label>
+    <mat-select [value]="filtreStatut()" (selectionChange)="filtreStatut.set($event.value)">
+      <mat-option [value]="null">Tous</mat-option>
+      @for (statut of ['BROUILLON', 'EN_ATTENTE_VALIDATION', 'VALIDEE', 'ANNULEE']; track statut) {
+        <mat-option [value]="statut">{{ libellesStatut[statut] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  @if (auth.aLaPermission('TRANSFERT_WRITE')) {
+    <button mat-flat-button color="primary" (click)="afficherCreation.set(!afficherCreation())">
+      {{ afficherCreation() ? 'Fermer' : 'Nouveau transfert' }}
+    </button>
+  }
+</div>
+
+@if (afficherCreation()) {
+  <div class="creation">
+    <div class="creation__champs">
+      <mat-form-field appearance="outline">
+        <mat-label>Point de vente source (dépôt)</mat-label>
+        <mat-select [value]="pointDeVenteSourceId()" (selectionChange)="pointDeVenteSourceId.set($event.value)">
+          @for (p of pointsDeVenteSource(); track p.id) {
+            <mat-option [value]="p.id">{{ p.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Point de vente destination (bar)</mat-label>
+        <mat-select
+          [value]="pointDeVenteDestinationId()"
+          (selectionChange)="pointDeVenteDestinationId.set($event.value)"
+        >
+          @for (p of pointsDeVenteDestination(); track p.id) {
+            <mat-option [value]="p.id">{{ p.libelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Date/heure</mat-label>
+        <input matInput type="datetime-local" [value]="dateHeure()" (input)="dateHeure.set($any($event.target).value)" />
+      </mat-form-field>
+    </div>
+
+    <h3 class="creation__sous-titre">Lignes</h3>
+    @if (lignes().length > 0) {
+      <table mat-table [dataSource]="lignes()" class="liste__table">
+        <ng-container matColumnDef="produit">
+          <th mat-header-cell *matHeaderCellDef>Produit</th>
+          <td mat-cell *matCellDef="let l">{{ libelleProduit(l.produitId) }}</td>
+        </ng-container>
+        <ng-container matColumnDef="quantite">
+          <th mat-header-cell *matHeaderCellDef>Demi-casiers</th>
+          <td mat-cell *matCellDef="let l">{{ l.quantiteDemiCasiers }}</td>
+        </ng-container>
+        <ng-container matColumnDef="retirer">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let l; let i = index">
+            <button mat-icon-button (click)="retirerLigne(i)" aria-label="Retirer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="['produit', 'quantite', 'retirer']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['produit', 'quantite', 'retirer']"></tr>
+      </table>
+    }
+
+    <div class="ajout-ligne">
+      <mat-form-field appearance="outline">
+        <mat-label>Produit</mat-label>
+        <mat-select [value]="produitAAjouter()" (selectionChange)="produitAAjouter.set($event.value)">
+          @for (p of produits.value()?.content ?? []; track p.id) {
+            <mat-option [value]="p.id">{{ p.marqueLibelle }} {{ p.volumeLibelle }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Conditionnement</mat-label>
+        <mat-select [value]="conditionnementAAjouter()" (selectionChange)="conditionnementAAjouter.set($event.value)">
+          @for (c of conditionnementsDuProduit(); track c.id) {
+            <mat-option [value]="c.id">Casier de {{ c.capaciteBouteilles }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Demi-casiers</mat-label>
+        <input matInput type="number" [value]="quantiteAAjouter()" (input)="quantiteAAjouter.set(+$any($event.target).value)" />
+      </mat-form-field>
+      <button mat-stroked-button type="button" (click)="ajouterLigne()">Ajouter la ligne</button>
+    </div>
+
+    <button mat-flat-button color="primary" [disabled]="enCours() || lignes().length === 0" (click)="creer()">
+      Créer le transfert
+    </button>
+  </div>
+}
+
+@if (transferts.isLoading()) {
+  <mat-spinner diameter="32" />
+} @else {
+  <table mat-table [dataSource]="transferts.value()?.content ?? []" class="liste__table">
+    <ng-container matColumnDef="numero">
+      <th mat-header-cell *matHeaderCellDef>N°</th>
+      <td mat-cell *matCellDef="let t">{{ t.numero }}</td>
+    </ng-container>
+    <ng-container matColumnDef="source">
+      <th mat-header-cell *matHeaderCellDef>Source</th>
+      <td mat-cell *matCellDef="let t">{{ t.pointDeVenteSourceLibelle }}</td>
+    </ng-container>
+    <ng-container matColumnDef="destination">
+      <th mat-header-cell *matHeaderCellDef>Destination</th>
+      <td mat-cell *matCellDef="let t">{{ t.pointDeVenteDestinationLibelle }}</td>
+    </ng-container>
+    <ng-container matColumnDef="dateHeure">
+      <th mat-header-cell *matHeaderCellDef>Date</th>
+      <td mat-cell *matCellDef="let t">{{ t.dateHeure | date: 'dd/MM/yyyy HH:mm' }}</td>
+    </ng-container>
+    <ng-container matColumnDef="statut">
+      <th mat-header-cell *matHeaderCellDef>Statut</th>
+      <td mat-cell *matCellDef="let t">
+        <mat-chip-set><mat-chip>{{ libellesStatut[t.statut] }}</mat-chip></mat-chip-set>
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="montantTotalXof">
+      <th mat-header-cell *matHeaderCellDef>Montant</th>
+      <td mat-cell *matCellDef="let t">{{ t.montantTotalXof | xof }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+    <tr mat-row *matRowDef="let row; columns: colonnes" (click)="ouvrir(row.id)" class="liste__ligne-cliquable"></tr>
+  </table>
+}
