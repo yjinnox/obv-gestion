@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Activation de votre compte OBV Gestion</title>
+</head>
+<body style="margin:0; padding:0; background-color:#EFEFEF; font-family: Arial, sans-serif; color:#1B1B1B;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#EFEFEF; padding:24px 0;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="480" cellpadding="0" cellspacing="0"
+                   style="background-color:#FFFFFF; border-radius:4px; overflow:hidden;">
+                <tr>
+                    <td style="background-color:#096A09; padding:16px 24px;">
+                        <span style="color:#FFFFFF; font-size:18px; font-weight:bold;">OBV Gestion</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding:24px;">
+                        <p>Bonjour <span th:text="${prenoms}">Prénom</span> <span th:text="${nom}">Nom</span>,</p>
+                        <p>Un compte a été créé pour vous sur OBV Gestion. Pour l'activer, définissez votre mot de
+                            passe en suivant le lien ci-dessous (valable 72 heures) :</p>
+                        <p style="text-align:center; margin:32px 0;">
+                            <a th:href="${lienActivation}"
+                               style="background-color:#096A09; color:#FFFFFF; text-decoration:none; padding:12px 24px; border-radius:4px; display:inline-block;">
+                                Activer mon compte
+                            </a>
+                        </p>
+                        <p style="font-size:13px; color:#5a6056;">Si vous n'êtes pas à l'origine de cette demande,
+                            ignorez cet email.</p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

@@ -37,6 +37,7 @@
     <jjwt.version>0.12.6</jjwt.version>
     <testcontainers.version>1.21.3</testcontainers.version>
     <spotbugs-maven-plugin.version>4.10.4.0</spotbugs-maven-plugin.version>
+    <bouncycastle.version>1.85.2</bouncycastle.version>
   </properties>
 
   <dependencyManagement>
@@ -91,6 +92,7 @@
             <effort>Default</effort>
             <threshold>Medium</threshold>
             <failOnError>true</failOnError>
+            <excludeFilterFile>${maven.multiModuleProjectDirectory}/spotbugs-exclude.xml</excludeFilterFile>
           </configuration>
           <executions>
             <execution>

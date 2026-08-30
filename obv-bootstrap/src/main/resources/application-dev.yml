@@ -11,6 +11,13 @@ spring:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
 
+security:
+  jwt:
+    secret: ${JWT_SECRET:dev-only-secret-never-used-in-production-please-change-me}
+
+notification:
+  mode: ${NOTIFICATION_MODE:log}
+
 logging:
   level:
     com.obvgestion: DEBUG

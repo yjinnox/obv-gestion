@@ -51,6 +51,14 @@ services:
       REDIS_PORT: "6379"
       MAIL_HOST: mailhog
       MAIL_PORT: "1025"
+      APP_FRONTEND_URL: http://localhost:4200
+      JWT_SECRET: dev-only-secret-never-used-in-production-please-change-me
+      NOTIFICATION_MODE: real
+      SMS_PROVIDER: log
+      BOOTSTRAP_ADMIN_NOM: Admin
+      BOOTSTRAP_ADMIN_PRENOMS: OBV
+      BOOTSTRAP_ADMIN_CANAL: EMAIL
+      BOOTSTRAP_ADMIN_EMAIL: admin@obv-gestion.local
     ports:
       - "8080:8080"
     depends_on:

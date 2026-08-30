@@ -1,0 +1,1 @@
+OBV Gestion : bonjour [(${prenoms})], votre compte a été créé. Activez-le (72h) : [(${lienActivation})]

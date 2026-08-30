@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+  <!--
+    EI_EXPOSE_REP / EI_EXPOSE_REP2 : les entités JPA (obv-domain) exposent
+    intentionnellement leurs associations (@ManyToOne, @OneToOne...) via
+    leurs accesseurs — c'est le fonctionnement normal d'un ORM, une copie
+    défensive casserait le suivi des modifications par Hibernate.
+  -->
+  <Match>
+    <Package name="~com\.obvgestion\.domain(\..*)?"/>
+    <Or>
+      <Bug pattern="EI_EXPOSE_REP"/>
+      <Bug pattern="EI_EXPOSE_REP2"/>
+    </Or>
+  </Match>
+
+  <!--
+    Même famille de faux positifs pour l'injection de dépendances Spring :
+    stocker en champ un bean framework injecté par constructeur
+    (StringRedisTemplate, ObjectMapper, TemplateEngine...) est le
+    fonctionnement normal de l'injection par constructeur, pas une fuite de
+    représentation interne.
+  -->
+  <Match>
+    <Or>
+      <Package name="~com\.obvgestion\.infrastructure(\..*)?"/>
+      <Package name="~com\.obvgestion\.api(\..*)?"/>
+    </Or>
+    <Bug pattern="EI_EXPOSE_REP2"/>
+  </Match>
+</FindBugsFilter>

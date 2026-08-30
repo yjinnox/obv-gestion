@@ -6,7 +6,8 @@ La spécification fonctionnelle et technique complète est dans [`docs/specifica
 
 ## État du projet
 
-**Phase P0 — squelette** : monorepo Maven, Liquibase, docker-compose, Actuator, CI. Aucune fonctionnalité métier n'est encore implémentée (l'authentification et le référentiel arrivent en P1/P2, cf. §18 de la spécification).
+- **P0 — squelette** : monorepo Maven, Liquibase, docker-compose, Actuator, CI.
+- **P1 — authentification** : cycle de vie des comptes (création, invitation, mot de passe, OTP, activation, désactivation/réactivation, archivage RG-05), rôles et permissions (§3.3), JWT + refresh token rotatif, verrouillage après échecs, notifications email/SMS par file transactionnelle (outbox), amorçage du premier SUPER_ADMINISTRATEUR. Le référentiel (marques, produits, tarifs...) arrive en P2, cf. §18 de la spécification.
 
 ## Stack
 
@@ -34,9 +35,16 @@ docker compose up --build
 ```
 
 - Frontend : http://localhost:4200
-- API backend : http://localhost:8080/api/v1
+- API backend : http://localhost:8080/api/v1 (documentation OpenAPI : `/swagger-ui.html`)
 - Actuator : http://localhost:8080/actuator/health
 - MailHog (emails de test) : http://localhost:8025
+
+Le `docker-compose.yml` amorce automatiquement un premier `SUPER_ADMINISTRATEUR`
+(`admin@obv-gestion.local`) au démarrage (RG-06 : il en faut toujours au moins
+un) : son invitation d'activation part par email vers MailHog. Les variables
+`JWT_SECRET`, `BOOTSTRAP_ADMIN_*`, `NOTIFICATION_MODE` et `SMS_PROVIDER` y
+sont définies avec des valeurs de développement — à ne jamais réutiliser en
+production (secrets réels via variables d'environnement, cf. §16.2).
 
 ## Développement backend
 

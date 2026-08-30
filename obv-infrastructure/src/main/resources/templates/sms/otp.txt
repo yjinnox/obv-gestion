@@ -1,0 +1,1 @@
+OBV Gestion : votre code de vérification est [(${code})]. Valable 10 minutes. Ne le communiquez à personne.
