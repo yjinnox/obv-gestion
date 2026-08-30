@@ -1,0 +1,119 @@
+<h1 class="page__titre">Rapports</h1>
+
+<mat-button-toggle-group [value]="onglet()" (change)="onglet.set($event.value)" class="onglets">
+  <mat-button-toggle value="ventes">Ventes</mat-button-toggle>
+  <mat-button-toggle value="stock">Stock valorisé</mat-button-toggle>
+</mat-button-toggle-group>
+
+@if (onglet() === 'ventes') {
+  <div class="filtres">
+    <mat-form-field appearance="outline">
+      <mat-label>Point de vente</mat-label>
+      <mat-select [value]="pdvVentes()" (selectionChange)="pdvVentes.set($event.value)">
+        @for (pdv of pointsDeVente.value()?.content ?? []; track pdv.id) {
+          <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Du</mat-label>
+      <input matInput type="date" [value]="du()" (input)="du.set($any($event.target).value)" />
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Au</mat-label>
+      <input matInput type="date" [value]="au()" (input)="au.set($any($event.target).value)" />
+    </mat-form-field>
+    <button mat-stroked-button [disabled]="pdvVentes() === null" (click)="exporterVentesCsv()">
+      <mat-icon>download</mat-icon>
+      Export CSV
+    </button>
+  </div>
+
+  @if (rapportVentes.isLoading()) {
+    <mat-spinner diameter="32" />
+  } @else if (rapportVentes.value(); as r) {
+    <div class="kpis">
+      <mat-card appearance="outlined" class="kpi-card">
+        <span class="kpi-card__libelle">Quantité totale</span>
+        <span class="kpi-card__valeur">{{ r.quantiteTotale }}</span>
+      </mat-card>
+      <mat-card appearance="outlined" class="kpi-card kpi-card--accent">
+        <span class="kpi-card__libelle">Recette totale</span>
+        <span class="kpi-card__valeur">{{ r.recetteTotaleXof | xof }}</span>
+      </mat-card>
+    </div>
+
+    <div class="detail-grille">
+      <mat-card appearance="outlined" class="detail">
+        <h2>Par marque</h2>
+        @for (e of r.quantiteParMarque | keyvalue; track e.key) {
+          <div class="detail__ligne"><span>{{ e.key }}</span><span>{{ e.value }}</span></div>
+        }
+      </mat-card>
+      <mat-card appearance="outlined" class="detail">
+        <h2>Par volume</h2>
+        @for (e of r.quantiteParVolume | keyvalue; track e.key) {
+          <div class="detail__ligne"><span>{{ e.key }}</span><span>{{ e.value }}</span></div>
+        }
+      </mat-card>
+      @if ((r.recetteParModePaiementXof | keyvalue)?.length) {
+        <mat-card appearance="outlined" class="detail">
+          <h2>Recette par mode de paiement</h2>
+          @for (e of r.recetteParModePaiementXof | keyvalue; track e.key) {
+            <div class="detail__ligne"><span>{{ libellesModePaiement[e.key] ?? e.key }}</span><span>{{ e.value | xof }}</span></div>
+          }
+        </mat-card>
+      }
+      @if ((r.quantiteParServeur | keyvalue)?.length) {
+        <mat-card appearance="outlined" class="detail">
+          <h2>Quantité par serveur</h2>
+          @for (e of r.quantiteParServeur | keyvalue; track e.key) {
+            <div class="detail__ligne"><span>{{ e.key }}</span><span>{{ e.value }}</span></div>
+          }
+        </mat-card>
+      }
+      <mat-card appearance="outlined" class="detail">
+        <h2>Recette par jour</h2>
+        @for (e of r.recetteParJourXof | keyvalue; track e.key) {
+          <div class="detail__ligne"><span>{{ e.key }}</span><span>{{ e.value | xof }}</span></div>
+        }
+      </mat-card>
+    </div>
+  } @else {
+    <p class="astuce">Sélectionnez un point de vente pour générer le rapport.</p>
+  }
+}
+
+@if (onglet() === 'stock') {
+  <div class="filtres">
+    <mat-form-field appearance="outline">
+      <mat-label>Point de vente (optionnel)</mat-label>
+      <mat-select [value]="pdvStock()" (selectionChange)="pdvStock.set($event.value)">
+        <mat-option [value]="null">Tous</mat-option>
+        @for (pdv of pointsDeVente.value()?.content ?? []; track pdv.id) {
+          <mat-option [value]="pdv.id">{{ pdv.libelle }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button mat-stroked-button (click)="exporterStockCsv()">
+      <mat-icon>download</mat-icon>
+      Export CSV
+    </button>
+  </div>
+
+  @if (rapportStock.isLoading()) {
+    <mat-spinner diameter="32" />
+  } @else if (rapportStock.value(); as r) {
+    <mat-card appearance="outlined" class="detail">
+      @for (ligne of r.lignes; track ligne.produitId + '-' + ligne.pointDeVenteId) {
+        <div class="detail__ligne">
+          <span>{{ ligne.pointDeVenteLibelle }} — {{ ligne.marqueLibelle }} {{ ligne.volumeLibelle }} ({{ ligne.quantite }})</span>
+          <span>{{ ligne.valeurLigneXof | xof }}</span>
+        </div>
+      }
+      <div class="detail__ligne detail__ligne--total">
+        <span>Valeur totale</span><span>{{ r.valeurTotaleXof | xof }}</span>
+      </div>
+    </mat-card>
+  }
+}

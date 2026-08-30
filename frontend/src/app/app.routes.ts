@@ -160,6 +160,12 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'rapports',
+        canActivate: [permissionGuard],
+        data: { permission: 'RAPPORT_READ' },
+        loadComponent: () => import('./features/rapports/rapports.component').then((m) => m.RapportsComponent),
+      },
+      {
         path: 'tickets-serveur/:id',
         canActivate: [permissionGuard],
         data: { permission: 'VENTE_WRITE' },
