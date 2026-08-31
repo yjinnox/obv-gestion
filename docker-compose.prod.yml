@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-obv_gestion}
+      POSTGRES_USER: ${DB_USER:-obv}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis (voir .env.example)}
+    volumes:
+      - obv-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-obv} -d ${DB_NAME:-obv_gestion}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-obv_gestion}
+      DB_USER: ${DB_USER:-obv}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD requis (voir .env.example)}
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      MAIL_HOST: ${MAIL_HOST:?MAIL_HOST requis (ex. smtp-relay.brevo.com)}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USER: ${MAIL_USER:?MAIL_USER requis}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:?MAIL_PASSWORD requis}
+      NOTIFICATION_EMAIL_FROM: ${NOTIFICATION_EMAIL_FROM:?NOTIFICATION_EMAIL_FROM requis}
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL:?APP_FRONTEND_URL requis (URL publique du frontend)}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET requis (chaîne aléatoire longue, jamais celle du dev)}
+      NOTIFICATION_MODE: real
+      SMS_PROVIDER: log
+      BOOTSTRAP_ADMIN_NOM: ${BOOTSTRAP_ADMIN_NOM:-Admin}
+      BOOTSTRAP_ADMIN_PRENOMS: ${BOOTSTRAP_ADMIN_PRENOMS:-OBV}
+      BOOTSTRAP_ADMIN_CANAL: EMAIL
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:?BOOTSTRAP_ADMIN_EMAIL requis}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O-", "http://localhost:8081/actuator/health/readiness"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 10
+    restart: unless-stopped
+    # Ports 8080/8081 volontairement non publiés : seul le frontend (nginx)
+    # est exposé publiquement, il reverse-proxy /api/ vers ce conteneur sur
+    # le réseau interne Docker (voir frontend/nginx.conf).
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-80}:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  obv-postgres-data:

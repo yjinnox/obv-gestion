@@ -46,6 +46,30 @@ un) : son invitation d'activation part par email vers MailHog. Les variables
 sont définies avec des valeurs de développement — à ne jamais réutiliser en
 production (secrets réels via variables d'environnement, cf. §16.2).
 
+## Déployer pour des testeurs (VM gratuite)
+
+`docker-compose.prod.yml` reprend la même stack, avec le profil Spring `prod`
+(§16.2 : Swagger et le détail d'Actuator désactivés) et un vrai envoi
+d'email (ex. [Brevo](https://www.brevo.com), gratuit jusqu'à 300 emails/jour)
+à la place de MailHog. Seul le frontend est exposé publiquement ; il
+reverse-proxy `/api/` vers le backend sur le réseau Docker interne
+(`frontend/nginx.conf`) — Postgres, Redis et le backend ne sont jamais
+accessibles depuis l'extérieur.
+
+Sur une VM gratuite (ex. [Oracle Cloud Always Free](https://www.oracle.com/cloud/free/)) avec Docker installé :
+
+```bash
+git clone <url-du-repo> && cd obv-gestion
+cp .env.example .env
+# éditer .env : mot de passe DB, JWT_SECRET, identifiants SMTP Brevo,
+# APP_FRONTEND_URL = IP publique (ou domaine) de la VM, email admin
+docker compose -f docker-compose.prod.yml up --build -d
+```
+
+Le premier `SUPER_ADMINISTRATEUR` (adresse `BOOTSTRAP_ADMIN_EMAIL`) reçoit
+alors une vraie invitation d'activation par email (§4.2), et peut ensuite
+créer les comptes testeurs depuis l'écran "Utilisateurs".
+
 ## Développement backend
 
 ```bash
