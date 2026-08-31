@@ -49,20 +49,28 @@ production (secrets réels via variables d'environnement, cf. §16.2).
 ## Déployer pour des testeurs (VM gratuite)
 
 `docker-compose.prod.yml` reprend la même stack, avec le profil Spring `prod`
-(§16.2 : Swagger et le détail d'Actuator désactivés) et un vrai envoi
-d'email (ex. [Brevo](https://www.brevo.com), gratuit jusqu'à 300 emails/jour)
-à la place de MailHog. Seul le frontend est exposé publiquement ; il
-reverse-proxy `/api/` vers le backend sur le réseau Docker interne
-(`frontend/nginx.conf`) — Postgres, Redis et le backend ne sont jamais
-accessibles depuis l'extérieur.
+(§16.2 : Swagger et le détail d'Actuator désactivés), un vrai envoi d'email
+(ex. [Brevo](https://www.brevo.com), gratuit jusqu'à 300 emails/jour) à la
+place de MailHog, et [Caddy](https://caddyserver.com) en reverse proxy
+public — HTTPS automatique (Let's Encrypt) sur le nom de domaine renseigné
+dans `DOMAIN`, aucune configuration de certificat à faire à la main. Ni le
+frontend/backend applicatifs ni Postgres/Redis ne sont exposés directement :
+seul Caddy écoute sur 80/443 et reverse-proxy vers le frontend en interne
+(qui lui-même reverse-proxy `/api/` vers le backend, `frontend/nginx.conf`).
 
-Sur une VM gratuite (ex. [Oracle Cloud Always Free](https://www.oracle.com/cloud/free/)) avec Docker installé :
+Un nom de domaine est nécessaire (un sous-domaine gratuit type
+[DuckDNS](https://www.duckdns.org) suffit) : il doit pointer, via un
+enregistrement DNS A, vers l'IP publique de la VM avant le premier
+démarrage — Let's Encrypt vérifie cette résolution pour délivrer le
+certificat.
+
+Sur une VM gratuite (ex. [Oracle Cloud Always Free](https://www.oracle.com/cloud/free/)) avec Docker installé, ports 80 et 443 ouverts :
 
 ```bash
 git clone <url-du-repo> && cd obv-gestion
 cp .env.example .env
 # éditer .env : mot de passe DB, JWT_SECRET, identifiants SMTP Brevo,
-# APP_FRONTEND_URL = IP publique (ou domaine) de la VM, email admin
+# DOMAIN + APP_FRONTEND_URL (https://votre-sous-domaine), email admin
 docker compose -f docker-compose.prod.yml up --build -d
 ```
 

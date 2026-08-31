@@ -67,12 +67,33 @@ services:
     build:
       context: frontend
       dockerfile: Dockerfile
-    ports:
-      - "${FRONTEND_PORT:-80}:8080"
     depends_on:
       backend:
         condition: service_healthy
     restart: unless-stopped
+    # Plus de port publié ici : c'est Caddy (ci-dessous) qui expose 80/443
+    # et reverse-proxy vers ce conteneur en interne.
+
+  # Reverse proxy HTTPS automatique (Let's Encrypt) — n'entre en jeu que si
+  # DOMAIN est renseigné dans .env ; sinon le frontend reste injoignable
+  # publiquement (voir docker-compose.yml / docker-compose.prod.yml sans
+  # ce service pour un accès direct en HTTP sur l'IP).
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN requis (ex. obv-gestion.duckdns.org) — voir .env.example}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - frontend
+    restart: unless-stopped
 
 volumes:
   obv-postgres-data:
+  caddy-data:
+  caddy-config:
