@@ -9,6 +9,7 @@ export const routes: Routes = [
     component: AuthLayoutComponent,
     canMatch: [invitesGuard],
     children: [
+      { path: '', pathMatch: 'full', redirectTo: 'connexion' },
       {
         path: 'connexion',
         loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent),
