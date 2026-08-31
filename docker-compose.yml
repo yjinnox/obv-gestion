@@ -58,7 +58,7 @@ services:
       BOOTSTRAP_ADMIN_NOM: Admin
       BOOTSTRAP_ADMIN_PRENOMS: OBV
       BOOTSTRAP_ADMIN_CANAL: EMAIL
-      BOOTSTRAP_ADMIN_EMAIL: admin@obv-gestion.local
+      BOOTSTRAP_ADMIN_EMAIL: yjinnox@gmail.com
     ports:
       - "8080:8080"
       - "8081:8081"
