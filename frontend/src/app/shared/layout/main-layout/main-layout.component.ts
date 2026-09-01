@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { map } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { NAV_ITEMS } from '../nav-items';
+import { AppFooterComponent } from '../footer/app-footer.component';
 
 /**
  * Coquille des écrans authentifiés : barre d'outils + navigation latérale
@@ -29,6 +30,7 @@ import { NAV_ITEMS } from '../nav-items';
     MatIconModule,
     MatMenuModule,
     MatButtonModule,
+    AppFooterComponent,
   ],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

@@ -39,6 +39,14 @@
   min-height: 100%;
   padding: 16px;
   box-sizing: border-box;
+  // Colonne flex pour que le pied de page reste collé en bas de l'écran
+  // quand le contenu est court, et suive le contenu quand il est long.
+  display: flex;
+  flex-direction: column;
+
+  app-footer {
+    margin-top: auto;
+  }
 }
 
 @media (max-width: 599px) {
