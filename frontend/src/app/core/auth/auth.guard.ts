@@ -3,23 +3,33 @@ import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { Permission } from './auth.model';
 
+/**
+ * Redirige vers la connexion en mémorisant l'URL demandée, pour y revenir
+ * une fois authentifié : les liens profonds envoyés par email (demande de
+ * validation d'une réception, §7.2) doivent aboutir sur la page visée, pas
+ * sur le tableau de bord.
+ */
+function versConnexion(router: Router, urlDemandee: string) {
+  return router.createUrlTree(['/connexion'], { queryParams: { returnUrl: urlDemandee } });
+}
+
 /** Route protégée par authentification simple (§15.2). */
-export const authGuard: CanActivateFn = () => {
+export const authGuard: CanActivateFn = (_route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
-  return auth.estAuthentifie() || router.createUrlTree(['/connexion']);
+  return auth.estAuthentifie() || versConnexion(router, state.url);
 };
 
 /**
  * Route protégée par une permission précise. `data: { permission: 'X' }`
  * sur la route (voir app.routes.ts).
  */
-export const permissionGuard: CanActivateFn = (route) => {
+export const permissionGuard: CanActivateFn = (route, state) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const permission = route.data['permission'] as Permission | undefined;
   if (!auth.estAuthentifie()) {
-    return router.createUrlTree(['/connexion']);
+    return versConnexion(router, state.url);
   }
   if (permission && !auth.aLaPermission(permission)) {
     return router.createUrlTree(['/tableau-de-bord']);

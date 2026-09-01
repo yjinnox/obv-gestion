@@ -204,7 +204,11 @@ public class ReceptionService {
         jetonValidationReceptionRepository.enregistrer(
                 JetonValidationReception.creer(reception, destinataire, jeton.hacher(), Instant.now()));
 
-        String lien = urlFrontend + "/receptions/" + reception.getId() + "/recapitulatif?token=" + jeton.valeurClaire();
+        // L'écran de détail d'une réception affiche déjà son récapitulatif
+        // (totaux par marque/volume, §7.2 étape 3) et les actions de
+        // validation : c'est lui la cible du lien, il n'existe pas de route
+        // « /recapitulatif » distincte côté frontend.
+        String lien = urlFrontend + "/receptions/" + reception.getId() + "?token=" + jeton.valeurClaire();
         notificationService.envoyer(new Notification(
                 destinataire.canalNotification(), destinataire.contactNotification(), "reception-demande-validation",
                 Map.of("nom", destinataire.getNom(), "prenoms", destinataire.getPrenoms(),

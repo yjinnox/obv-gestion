@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -21,6 +21,18 @@ const connexionSchema = schema<ConnexionModele>((champ) => {
   required(champ.motDePasse, { message: 'Le mot de passe est requis.' });
 });
 
+/**
+ * N'accepte qu'un chemin interne à l'application : une valeur absolue
+ * (`https://...`) ou protocole-relative (`//...`) permettrait de rediriger
+ * l'utilisateur vers un site tiers après connexion (open redirect).
+ */
+export function destinationApresConnexion(returnUrl: string | null): string {
+  if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+    return '/tableau-de-bord';
+  }
+  return returnUrl;
+}
+
 /** §4.4 — écran de connexion (identifiant e-mail/téléphone + mot de passe). */
 @Component({
   selector: 'app-login',
@@ -38,6 +50,7 @@ const connexionSchema = schema<ConnexionModele>((champ) => {
 export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   protected readonly modele = signal<ConnexionModele>({ identifiant: '', motDePasse: '' });
   protected readonly connexionForm = form(this.modele, connexionSchema);
@@ -54,7 +67,9 @@ export class LoginComponent {
       try {
         const { identifiant, motDePasse } = f().value();
         await firstValueFrom(this.auth.connecter(identifiant, motDePasse));
-        await this.router.navigateByUrl('/tableau-de-bord');
+        await this.router.navigateByUrl(
+          destinationApresConnexion(this.route.snapshot.queryParamMap.get('returnUrl')),
+        );
         return undefined;
       } catch (erreur) {
         const message =

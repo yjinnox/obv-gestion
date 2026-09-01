@@ -26,10 +26,23 @@ describe('auth.guard', () => {
 
   it("authGuard refuse et redirige vers /connexion quand l'utilisateur n'est pas authentifié", () => {
     const router = configurerTestBed();
-    const resultat = TestBed.runInInjectionContext(() => authGuard({} as never, {} as never));
+    const resultat = TestBed.runInInjectionContext(() => authGuard({} as never, { url: '/' } as never));
     expect(resultat).toBeInstanceOf(UrlTree);
-    expect(router.serializeUrl(resultat as UrlTree)).toBe('/connexion');
+    expect(router.serializeUrl(resultat as UrlTree)).toBe('/connexion?returnUrl=%2F');
   });
+
+  it(
+    "authGuard mémorise l'URL demandée en returnUrl — un lien profond reçu par email (demande de " +
+      'validation de réception, §7.2) doit aboutir sur la page visée après connexion, pas sur le tableau de bord',
+    () => {
+      const router = configurerTestBed();
+      const etat = { url: '/receptions/12?token=abc' } as never;
+      const resultat = TestBed.runInInjectionContext(() => authGuard({} as never, etat));
+      expect(router.serializeUrl(resultat as UrlTree)).toBe(
+        '/connexion?returnUrl=%2Freceptions%2F12%3Ftoken%3Dabc',
+      );
+    },
+  );
 
   it('authGuard autorise (true) quand authentifié', () => {
     seConnecterFictivement();
@@ -38,11 +51,12 @@ describe('auth.guard', () => {
     expect(resultat).toBe(true);
   });
 
-  it('permissionGuard redirige vers /connexion quand non authentifié', () => {
+  it("permissionGuard redirige vers /connexion en mémorisant l'URL demandée quand non authentifié", () => {
     const router = configurerTestBed();
     const route = { data: { permission: 'RAPPORT_READ' } } as never;
-    const resultat = TestBed.runInInjectionContext(() => permissionGuard(route, {} as never));
-    expect(router.serializeUrl(resultat as UrlTree)).toBe('/connexion');
+    const etat = { url: '/rapports' } as never;
+    const resultat = TestBed.runInInjectionContext(() => permissionGuard(route, etat));
+    expect(router.serializeUrl(resultat as UrlTree)).toBe('/connexion?returnUrl=%2Frapports');
   });
 
   it("permissionGuard redirige vers /tableau-de-bord quand la permission manque", () => {
