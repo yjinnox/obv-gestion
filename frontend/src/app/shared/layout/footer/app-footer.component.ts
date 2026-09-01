@@ -6,13 +6,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<footer class="pied-page">Copyright ASSOMA Technology - {{ annee }}</footer>`,
   styles: `
-    /* Orange de la charte (§15.1), en gras, sur fond clair comme sur le
-       vert des écrans publics. */
+    /* Orange de la charte (§15.1) : lisible aussi bien sur le fond clair des
+       écrans internes que sur le vert des écrans publics. */
     .pied-page {
       padding: 16px 8px;
       text-align: center;
-      font-size: 0.8125rem;
-      font-weight: 700;
+      font-size: 1.3125rem;
       color: var(--orange-primaire);
     }
   `,
