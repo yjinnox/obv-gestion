@@ -50,18 +50,16 @@
       <div class="recap__ligne"><span>Total compté</span><span>{{ recap.session.totalCompteXof | xof }}</span></div>
       <div class="recap__ligne"><span>Écart</span><span>{{ recap.session.ecartXof | xof }}</span></div>
 
+      <!--
+        Le SUPER_ADMINISTRATEUR valide sa propre session : tant qu'elle
+        n'est pas validée, elle reste rouvrable en modification pour
+        correction (RG-29).
+      -->
       @if (auth.aLaPermission('SESSION_VALIDER')) {
-        @if (estClotureurCourant()) {
-          <p class="rg01-note">
-            Vous avez clôturé cette session : conformément à la séparation des tâches (RG-01), vous ne pouvez pas la
-            valider vous-même.
-          </p>
-        } @else {
-          <button mat-flat-button color="primary" (click)="valider()">Valider la session</button>
-        }
+        <button mat-flat-button color="primary" (click)="valider()">Valider la session</button>
       }
       @if (auth.aLaPermission('SESSION_CLOTURER') && recap.session.statut === 'CLOTUREE') {
-        <button mat-stroked-button (click)="demanderModification()">Demander une modification</button>
+        <button mat-stroked-button (click)="demanderModification()">Modifier la session</button>
       }
     </mat-card>
   }

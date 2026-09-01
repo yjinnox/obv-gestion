@@ -94,7 +94,10 @@ MODIFICATION_POST_CLOTURE
 | MODIFICATION_POST_CLOTURE | ✔ | — | — | — | — |
 | RAPPORT_READ | ✔ | ✔ | ✔ | ✔ | — |
 
-**RG-01** — La validation définitive d'une réception, d'un transfert ou d'une session de vente est réservée au `SUPER_ADMINISTRATEUR`. Un utilisateur ne peut jamais valider un document qu'il a lui-même clôturé (séparation des tâches), même s'il est SUPER_ADMIN — dans ce cas un autre SUPER_ADMIN doit valider.
+**RG-01** — La validation définitive d'une réception, d'un transfert ou d'une session de vente est réservée au `SUPER_ADMINISTRATEUR`.
+
+- **Réception et session de vente** : le `SUPER_ADMINISTRATEUR` peut valider un document qu'il a lui-même clôturé. Un même utilisateur cumulant un rôle global et un rôle opérationnel (gérant, vendeur), c'est lui qui clôture au quotidien, et exiger un second administrateur bloquerait le flux dans une structure qui n'en compte qu'un. Le contrôle repose alors sur la réversibilité avant validation : une réception en attente de validation reste corrigeable (RG-20, ajustement de stock) ou annulable (RG-18, contre-passation), une session clôturée reste rouvrable en modification (RG-29). La demande de validation à un autre administrateur (§7.2) reste possible, mais devient facultative.
+- **Transfert** : la séparation des tâches reste stricte — un utilisateur ne peut pas valider un transfert qu'il a lui-même clôturé, un autre `SUPER_ADMINISTRATEUR` doit le faire (le transfert déplace du stock entre deux points de vente distincts, avec deux responsables différents).
 
 ---
 
@@ -534,7 +537,7 @@ Angular n'a pas de « version LTS » à cibler pour un nouveau projet : chaque m
 8. **Point de vente** introduit pour permettre plusieurs bars sans refonte.
 9. **Serveurs** modélisés comme référentiel et non comme comptes applicatifs, avec tickets par serveur (RG-33).
 10. **Suppression d'utilisateur** remplacée par archivage (RG-05).
-11. **Séparation des tâches** ajoutée : on ne valide pas son propre document (RG-01).
+11. **Séparation des tâches** ajoutée sur les transferts : on ne valide pas son propre bon de transfert (RG-01). Sur les réceptions et les sessions de vente, elle a été assouplie au profit de la réversibilité avant validation (RG-01).
 12. **Journal des mouvements de stock** ajouté : sans lui, aucun contrôle ni audit possible.
 13. **Idempotence** sur la commande et les liens de validation (RG-27, RG-36).
 14. **Contrôle de stock négatif** explicité (RG-15) — absent de la spec initiale.

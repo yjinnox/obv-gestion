@@ -2,7 +2,6 @@ package com.obvgestion.domain.vente;
 
 import com.obvgestion.domain.audit.Auditable;
 import com.obvgestion.domain.commun.Montant;
-import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.referentiel.PointDeVente;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -98,15 +97,16 @@ public class SessionVente extends Auditable {
         this.ecartXof = totalCompte.valeurXof() - totalTheorique.valeurXof();
     }
 
-    /** RG-01/RG-28 — un utilisateur ne peut jamais valider une session qu'il a lui-même clôturée. */
+    /**
+     * RG-01/RG-28 — la validation reste réservée au SUPER_ADMINISTRATEUR
+     * (permission {@code SESSION_VALIDER}), y compris pour une session
+     * qu'il a lui-même clôturée : tant qu'elle n'est pas validée, elle
+     * reste rouvrable en modification ({@link #demanderModification}).
+     */
     public void valider(String valideePar, Instant maintenant) {
         if (statut != StatutSessionVente.CLOTUREE && statut != StatutSessionVente.EN_MODIFICATION) {
             throw new SessionVenteInvalideException(
                     "Cette action nécessite une session clôturée ou en modification (statut actuel : " + statut + ").");
-        }
-        if (valideePar.equals(clotureePar)) {
-            throw new SeparationDesTachesException(
-                    "Vous ne pouvez pas valider une session que vous avez vous-même clôturée.");
         }
         this.statut = StatutSessionVente.VALIDEE;
         this.dateValidation = maintenant;

@@ -24,7 +24,15 @@
     </mat-card>
   }
 
-  @if (r.statut === 'BROUILLON' && auth.aLaPermission('RECEPTION_WRITE')) {
+  <!--
+    En attente de validation, le stock est déjà entré (RG-17) : seule la
+    correction d'une ligne existante est possible (RG-20, ajustement de
+    stock automatique), pas l'ajout ni la suppression.
+  -->
+  @if (
+    auth.aLaPermission('RECEPTION_WRITE') &&
+    (r.statut === 'BROUILLON' || (r.statut === 'EN_ATTENTE_VALIDATION' && ligneEnEdition() !== null))
+  ) {
     <form (submit)="onSubmitLigne($event)" class="ligne-formulaire" novalidate>
       @if (formulaireLigne().errors().length > 0) {
         <p class="ligne-formulaire__erreur" role="alert">{{ formulaireLigne().errors()[0].message }}</p>
@@ -90,13 +98,17 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let l">
-        @if (r.statut === 'BROUILLON' && auth.aLaPermission('RECEPTION_WRITE')) {
-          <button mat-icon-button (click)="modifierLigne(l)" aria-label="Modifier">
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button mat-icon-button (click)="supprimerLigne(l.id)" aria-label="Supprimer">
-            <mat-icon>delete</mat-icon>
-          </button>
+        @if (auth.aLaPermission('RECEPTION_WRITE')) {
+          @if (r.statut === 'BROUILLON' || r.statut === 'EN_ATTENTE_VALIDATION') {
+            <button mat-icon-button (click)="modifierLigne(l)" aria-label="Modifier">
+              <mat-icon>edit</mat-icon>
+            </button>
+          }
+          @if (r.statut === 'BROUILLON') {
+            <button mat-icon-button (click)="supprimerLigne(l.id)" aria-label="Supprimer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          }
         }
       </td>
     </ng-container>
@@ -129,38 +141,39 @@
       <button mat-flat-button color="primary" (click)="cloturer()">Clôturer la réception</button>
     }
 
+    @if (r.statut === 'EN_ATTENTE_VALIDATION' && auth.aLaPermission('RECEPTION_VALIDER')) {
+      <button mat-flat-button color="primary" (click)="valider()">Valider</button>
+      <button mat-stroked-button color="warn" (click)="annuler()">Annuler la réception</button>
+    }
+
+    <!--
+      La demande de validation ne sert qu'à solliciter un AUTRE
+      administrateur : elle disparaît s'il n'y en a pas, pour ne pas laisser
+      croire qu'on peut se l'adresser à soi-même.
+    -->
     @if (r.statut === 'EN_ATTENTE_VALIDATION' && auth.aLaPermission('RECEPTION_WRITE')) {
-      <div class="demande-validation">
-        @if (destinataires.value(); as liste) {
-          @if (liste.content.length > 0) {
+      @if (destinataires.value()) {
+        @if (destinatairesPossibles().length > 0) {
+          <div class="demande-validation">
             <mat-form-field appearance="outline">
               <mat-label>Destinataire (validation)</mat-label>
               <mat-select [value]="destinataireSelectionne()" (selectionChange)="destinataireSelectionne.set($event.value)">
-                @for (u of liste.content; track u.id) {
+                @for (u of destinatairesPossibles(); track u.id) {
                   <mat-option [value]="u.id">{{ u.nom }} {{ u.prenoms }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
-          }
-        } @else {
+            <button mat-flat-button color="primary" (click)="demanderValidation()">Demander la validation</button>
+          </div>
+        }
+      } @else {
+        <div class="demande-validation">
           <mat-form-field appearance="outline">
             <mat-label>ID de l'administrateur à notifier</mat-label>
             <input matInput type="number" [value]="destinataireManuel()" (input)="destinataireManuel.set(+$any($event.target).value)" />
           </mat-form-field>
-        }
-        <button mat-flat-button color="primary" (click)="demanderValidation()">Demander la validation</button>
-      </div>
-    }
-
-    @if (r.statut === 'EN_ATTENTE_VALIDATION' && auth.aLaPermission('RECEPTION_VALIDER')) {
-      @if (estClotureurCourant()) {
-        <p class="rg01-note">
-          Vous avez clôturé cette réception : conformément à la séparation des tâches (RG-01), vous ne pouvez pas la
-          valider vous-même.
-        </p>
-      } @else {
-        <button mat-flat-button color="primary" (click)="valider()">Valider</button>
-        <button mat-stroked-button color="warn" (click)="annuler()">Annuler la réception</button>
+          <button mat-flat-button color="primary" (click)="demanderValidation()">Demander la validation</button>
+        </div>
       }
     }
   </div>

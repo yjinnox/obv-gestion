@@ -54,11 +54,6 @@ export class SessionDetailComponent {
     stream: ({ params }) => this.api.recapitulatif(params),
   });
 
-  protected readonly estClotureurCourant = computed(() => {
-    const session = this.recapitulatif.value()?.session;
-    return session !== undefined && session.clotureePar === String(this.auth.utilisateurId());
-  });
-
   protected async cloturer(): Promise<void> {
     const confirme = await this.confirm.demander({
       titre: 'Clôturer la session',

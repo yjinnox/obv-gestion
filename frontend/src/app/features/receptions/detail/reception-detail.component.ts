@@ -121,10 +121,15 @@ export class ReceptionDetailComponent {
       ),
   });
 
-  protected readonly estClotureurCourant = computed(() => {
-    const reception = this.reception.value();
-    return reception !== undefined && reception.clotureePar === String(this.auth.utilisateurId());
-  });
+  /**
+   * S'envoyer à soi-même une demande de validation n'a aucun sens : on
+   * exclut donc l'utilisateur courant de la liste. Un SUPER_ADMINISTRATEUR
+   * qui a clôturé valide directement (bouton « Valider »), la demande ne
+   * sert qu'à solliciter un autre administrateur.
+   */
+  protected readonly destinatairesPossibles = computed(() =>
+    (this.destinataires.value()?.content ?? []).filter((u) => u.id !== this.auth.utilisateurId()),
+  );
 
   protected async onSubmitLigne(event: Event): Promise<void> {
     event.preventDefault();
@@ -220,7 +225,9 @@ export class ReceptionDetailComponent {
   protected async valider(): Promise<void> {
     const confirme = await this.confirm.demander({
       titre: 'Valider la réception',
-      message: 'Valider définitivement cette réception ? Le stock sera incrémenté. Cette action est irréversible.',
+      message:
+        'Valider définitivement cette réception ? Le stock a déjà été incrémenté à la clôture ; après validation, '
+        + 'la réception ne pourra plus être ni corrigée ni annulée.',
       libelleConfirmation: 'Valider',
     });
     if (!confirme) return;

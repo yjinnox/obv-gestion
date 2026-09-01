@@ -1,7 +1,6 @@
 package com.obvgestion.domain.reception;
 
 import com.obvgestion.domain.commun.Montant;
-import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.referentiel.Conditionnement;
 import com.obvgestion.domain.referentiel.Fournisseur;
 import com.obvgestion.domain.referentiel.Marque;
@@ -64,12 +63,26 @@ class ReceptionTest {
         assertThatThrownBy(() -> reception.cloturer("gerant@obv.ci")).isInstanceOf(ReceptionInvalideException.class);
     }
 
-    /** RG-01 — un utilisateur ne peut jamais valider un document qu'il a lui-même clôturé. */
+    /**
+     * RG-01 — le validateur peut être l'auteur de la clôture : le stock est
+     * déjà entré à ce moment-là (RG-17), et la réception reste corrigeable
+     * ou annulable tant qu'elle n'est pas validée.
+     */
     @Test
-    void validerParLauteurDeLaClotureEstRefuse() {
+    void validerParLauteurDeLaClotureEstAccepte() {
         Reception reception = nouvelleReceptionAvecLigne();
         reception.cloturer("gerant@obv.ci");
-        assertThatThrownBy(() -> reception.valider("gerant@obv.ci")).isInstanceOf(SeparationDesTachesException.class);
+        reception.valider("gerant@obv.ci");
+        assertThat(reception.getStatut()).isEqualTo(StatutReception.VALIDEE);
+    }
+
+    /** Le stock entrant étant appliqué en bloc à la clôture, aucune ligne ne peut être ajoutée après. */
+    @Test
+    void ajouterUneLigneApresClotureEstRefuse() {
+        Reception reception = nouvelleReceptionAvecLigne();
+        reception.cloturer("gerant@obv.ci");
+        assertThatThrownBy(() -> reception.ajouterLigne(produit, conditionnement, 5, new Montant(8500)))
+                .isInstanceOf(ReceptionInvalideException.class);
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.obvgestion.domain.vente;
 
 import com.obvgestion.domain.commun.Montant;
-import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.referentiel.PointDeVente;
 import com.obvgestion.domain.referentiel.TypePointDeVente;
 import org.junit.jupiter.api.Test;
@@ -48,12 +47,17 @@ class SessionVenteTest {
                 .isInstanceOf(SessionVenteInvalideException.class);
     }
 
-    /** RG-01/RG-28 — un utilisateur ne peut jamais valider une session qu'il a lui-même clôturée. */
+    /**
+     * RG-01/RG-28 — le validateur peut être l'auteur de la clôture : tant
+     * que la session n'est pas validée, elle reste rouvrable en
+     * modification pour correction.
+     */
     @Test
-    void validerParLauteurDeLaClotureEstRefuse() {
+    void validerParLauteurDeLaClotureEstAccepte() {
         SessionVente session = nouvelleSessionOuverte();
         session.cloturer("1", Montant.zero(), Montant.zero(), Instant.now());
-        assertThatThrownBy(() -> session.valider("1", Instant.now())).isInstanceOf(SeparationDesTachesException.class);
+        session.valider("1", Instant.now());
+        assertThat(session.getStatut()).isEqualTo(StatutSessionVente.VALIDEE);
     }
 
     @Test
@@ -85,14 +89,13 @@ class SessionVenteTest {
         assertThatThrownBy(session::demanderModification).isInstanceOf(SessionVenteInvalideException.class);
     }
 
-    /** RG-01 — après demande de modification, le même clôturant ne peut toujours pas valider. */
+    /** RG-29 — une session rouverte en modification se revalide, y compris par l'auteur de la clôture. */
     @Test
-    void validerApresModificationParLauteurDeLaClotureResteRefuse() {
+    void validerApresModificationEstAccepte() {
         SessionVente session = nouvelleSessionOuverte();
         session.cloturer("1", Montant.zero(), Montant.zero(), Instant.now());
         session.demanderModification();
-        assertThatThrownBy(() -> session.valider("1", Instant.now())).isInstanceOf(SeparationDesTachesException.class);
-        session.valider("2", Instant.now());
+        session.valider("1", Instant.now());
         assertThat(session.getStatut()).isEqualTo(StatutSessionVente.VALIDEE);
     }
 

@@ -2,7 +2,6 @@ package com.obvgestion.domain.reception;
 
 import com.obvgestion.domain.audit.Auditable;
 import com.obvgestion.domain.commun.Montant;
-import com.obvgestion.domain.commun.SeparationDesTachesException;
 import com.obvgestion.domain.referentiel.Conditionnement;
 import com.obvgestion.domain.referentiel.Fournisseur;
 import com.obvgestion.domain.referentiel.PointDeVente;
@@ -83,9 +82,18 @@ public class Reception extends Auditable {
         this.dateHeureLivraison = dateHeureLivraison;
     }
 
+    /**
+     * Réservé au brouillon : le stock est incrémenté en bloc à la clôture
+     * (RG-17), une ligne ajoutée après coup n'aurait donc jamais son
+     * mouvement d'entrée. Après clôture, seule la correction d'une ligne
+     * existante est possible ({@link #modifierLigne}, qui déclenche un
+     * ajustement de stock du delta).
+     */
     public LigneReception ajouterLigne(Produit produit, Conditionnement conditionnement, long nombreCasiers,
                                         Montant prixAchatCasier) {
-        exigerModifiable();
+        if (statut != StatutReception.BROUILLON) {
+            throw new ReceptionInvalideException("Une ligne ne peut être ajoutée qu'en brouillon.");
+        }
         LigneReception ligne = new LigneReception(this, produit, conditionnement, nombreCasiers, prixAchatCasier);
         lignes.add(ligne);
         return ligne;
@@ -116,13 +124,16 @@ public class Reception extends Auditable {
         this.clotureePar = acteur;
     }
 
-    /** RG-01 — un utilisateur ne peut jamais valider un document qu'il a lui-même clôturé. */
+    /**
+     * RG-01 — la validation reste réservée au SUPER_ADMINISTRATEUR (via la
+     * permission {@code RECEPTION_VALIDER}), mais il peut valider une
+     * réception qu'il a lui-même clôturée : le stock est déjà entré à la
+     * clôture (RG-17), et tant que la réception est en attente de
+     * validation elle reste corrigeable (modification d'une ligne) ou
+     * annulable (contre-passation).
+     */
     public void valider(String validateur) {
         exigerEnAttenteValidation();
-        if (validateur.equals(clotureePar)) {
-            throw new SeparationDesTachesException(
-                    "Vous ne pouvez pas valider une réception que vous avez vous-même clôturée.");
-        }
         this.statut = StatutReception.VALIDEE;
     }
 
