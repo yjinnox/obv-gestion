@@ -10,6 +10,14 @@
   top: 0;
   z-index: 10;
 
+  // Les boutons d'icône Material portent leur propre couleur de thème :
+  // sans cette surcharge, le menu et le compte restent sombres sur le vert
+  // au lieu de s'aligner sur le blanc du titre.
+  .mat-mdc-icon-button {
+    --mat-icon-button-icon-color: var(--texte-inverse);
+    color: var(--texte-inverse);
+  }
+
   &__titre {
     margin-left: 8px;
     font-size: 1.125rem;
