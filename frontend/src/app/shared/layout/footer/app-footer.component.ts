@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/** Mention de copyright affichée en pied de toutes les pages. */
+/** Mention de copyright affichée en pied des écrans internes. */
 @Component({
   selector: 'app-footer',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<footer class="pied-page">Copyright ASSOMA Technology - {{ annee }}</footer>`,
   styles: `
-    /* Orange de la charte (§15.1) : lisible aussi bien sur le fond clair des
-       écrans internes que sur le vert des écrans publics. */
+    /* Orange de la charte (§15.1) sur le fond clair des écrans internes.
+       Les écrans publics (connexion, activation) n'affichent pas ce pied. */
     .pied-page {
       padding: 16px 8px;
       text-align: center;
