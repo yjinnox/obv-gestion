@@ -11,7 +11,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
     .pied-page {
       padding: 16px 8px;
       text-align: center;
-      font-size: 1.3125rem;
+      font-size: 0.8125rem;
       color: var(--orange-primaire);
     }
   `,
